@@ -25,7 +25,7 @@
 
 <span style="font-weight:bold;">DESCRIPTION</span>
      <span style="font-weight:bold;">Note:</span> As of IRIX 6.4, <span style="text-decoration:underline;font-weight:bold;">sh</span> is the Korn shell rather than the Bourne shell.
-     See <a href="http://IRIX/man/bsh">bsh(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a> for the Bourne Shell description.  See the <span style="font-weight:bold;">COMPATIBILITY</span>
+     See <a href="http://IRIX/man/bsh">bsh(1)</a> for the Bourne Shell description.  See the <span style="font-weight:bold;">COMPATIBILITY</span>
      <span style="font-weight:bold;">ISSUES</span> section below for more detail.
 
      This is the internationalized <span style="text-decoration:underline;font-weight:bold;">sh</span>. See the <span style="text-decoration:underline;font-weight:bold;">INTERNATIONALIZATION</span> section
@@ -60,10 +60,10 @@
      preceded by a variable assignment list (see <span style="font-weight:bold;">Environment</span> below).  The
      first word specifies the name of the command to be executed.  Except as
      specified below, the remaining words are passed as arguments to the
-     invoked command.  The command name is passed as argument 0 [see <a href="http://IRIX/man/exec">exec(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>].
+     invoked command.  The command name is passed as argument 0 [see <a href="http://IRIX/man/exec">exec(2)</a>].
      The <span style="text-decoration:underline;">value</span> of a simple-command is its exit status if it terminates
      normally, or (octal) 200+<span style="text-decoration:underline;">status</span> if it terminates abnormally [see
-     <a href="http://IRIX/man/signal">signal(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a> for a list of <span style="text-decoration:underline;">status</span> values].
+     <a href="http://IRIX/man/signal">signal(2)</a> for a list of <span style="text-decoration:underline;">status</span> values].
 
 
 
@@ -80,7 +80,7 @@
 
 
      A <span style="text-decoration:underline;">pipeline</span> is a sequence of one or more <span style="text-decoration:underline;">commands</span> separated by <span style="text-decoration:underline;font-weight:bold;">|</span>.  The
-     standard output of each command but the last is connected by a <a href="http://IRIX/man/pipe">pipe(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a> to
+     standard output of each command but the last is connected by a <a href="http://IRIX/man/pipe">pipe(2)</a> to
      the standard input of the next command.  Each command is run as a
      separate process; the shell waits for the last command to terminate.  The
      exit status of a pipeline is the exit status of the last command.
@@ -635,7 +635,7 @@
                  <span style="text-decoration:underline;font-weight:bold;">ISSUES</span> section at the end of this document.)
 
      The shell gives default values to <span style="text-decoration:underline;font-weight:bold;">PATH</span>, <span style="text-decoration:underline;font-weight:bold;">PS1</span>, <span style="text-decoration:underline;font-weight:bold;">PS2</span>, <span style="text-decoration:underline;font-weight:bold;">MAILCHECK</span>, <span style="text-decoration:underline;">_</span><span style="text-decoration:underline;font-weight:bold;">XPG</span>, <span style="text-decoration:underline;font-weight:bold;">TMOUT</span>
-     and <span style="text-decoration:underline;font-weight:bold;">IFS</span>.  <span style="text-decoration:underline;font-weight:bold;">HOME</span>, <span style="text-decoration:underline;font-weight:bold;">MAIL</span> and <span style="text-decoration:underline;font-weight:bold;">SHELL</span> are set by <a href="http://IRIX/man/login">login(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.
+     and <span style="text-decoration:underline;font-weight:bold;">IFS</span>.  <span style="text-decoration:underline;font-weight:bold;">HOME</span>, <span style="text-decoration:underline;font-weight:bold;">MAIL</span> and <span style="text-decoration:underline;font-weight:bold;">SHELL</span> are set by <a href="http://IRIX/man/login">login(1)</a>.
 
    <span style="font-weight:bold;">Blank</span> <span style="font-weight:bold;">Interpretation</span>
      After parameter and command substitution, the results of substitutions
@@ -904,7 +904,7 @@
                  from the document.
 
      <span style="text-decoration:underline;font-weight:bold;">&lt;&amp;</span><span style="text-decoration:underline;">digit</span>     The standard input is duplicated from file descriptor <span style="text-decoration:underline;">digit</span>
-                 [see <a href="http://IRIX/man/dup">dup(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>].  Similarly for the standard output using <span style="text-decoration:underline;font-weight:bold;">&gt;&amp;</span>
+                 [see <a href="http://IRIX/man/dup">dup(2)</a>].  Similarly for the standard output using <span style="text-decoration:underline;font-weight:bold;">&gt;&amp;</span>
                  <span style="text-decoration:underline;">digit</span>.
 
      <span style="text-decoration:underline;font-weight:bold;">&lt;&amp;-</span>         The standard input is closed.  Similarly for the standard
@@ -956,7 +956,7 @@
      specifications.
 
    <span style="font-weight:bold;">Environment</span>
-     The <span style="text-decoration:underline;">environment</span> [see <a href="http://IRIX/man/environ">environ(5) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>] is a list of name-value pairs that is
+     The <span style="text-decoration:underline;">environment</span> [see <a href="http://IRIX/man/environ">environ(5)</a>] is a list of name-value pairs that is
      passed to an executed program in the same way as a normal argument list.
      The names must be <span style="text-decoration:underline;">identifiers</span> and the values are character strings.  The
      shell interacts with the environment in several ways.  On invocation, the
@@ -1149,7 +1149,7 @@
      command executed.  A function is also executed in the current shell
      process.  If a command name is not a <span style="text-decoration:underline;">special</span> <span style="text-decoration:underline;">command</span> or a user defined
      <span style="text-decoration:underline;">function</span>, a process is created and an attempt is made to execute the
-     command via <a href="http://IRIX/man/exec">exec(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.
+     command via <a href="http://IRIX/man/exec">exec(2)</a>.
 
      The shell variable <span style="text-decoration:underline;font-weight:bold;">PATH</span> defines the search path for the directory
      containing the command.  Alternative directory names are separated by a
@@ -1272,7 +1272,7 @@
      <span style="text-decoration:underline;font-weight:bold;">^]</span><span style="text-decoration:underline;">char</span>    Move cursor forward to character <span style="text-decoration:underline;">char</span> on current line.
      <span style="text-decoration:underline;font-weight:bold;">M-^]</span><span style="text-decoration:underline;">char</span>  Move cursor back to character <span style="text-decoration:underline;">char</span> on current line.
      <span style="text-decoration:underline;font-weight:bold;">^X^X</span>      Interchange the cursor and mark.
-     <span style="text-decoration:underline;">erase</span>     (User defined erase character as defined by the <a href="http://IRIX/man/stty">stty(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>
+     <span style="text-decoration:underline;">erase</span>     (User defined erase character as defined by the <a href="http://IRIX/man/stty">stty(1)</a>
                command, usually <span style="text-decoration:underline;font-weight:bold;">^H</span> or <span style="text-decoration:underline;font-weight:bold;">#</span>.)  Delete previous character.
      <span style="text-decoration:underline;font-weight:bold;">^D</span>        Delete current character.
      <span style="text-decoration:underline;font-weight:bold;">M-d</span>       Delete current word.
@@ -1816,7 +1816,7 @@
           The <span style="text-decoration:underline;font-weight:bold;">cd</span> command may not be executed by restricted <span style="text-decoration:underline;font-weight:bold;">sh</span>.
 
      <span style="text-decoration:underline;font-weight:bold;">echo</span> [ <span style="text-decoration:underline;">arg</span> ... ]
-          See <a href="http://IRIX/man/echo">echo(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a> for usage and description.
+          See <a href="http://IRIX/man/echo">echo(1)</a> for usage and description.
 
      <span style="text-decoration:underline;font-weight:bold;">eval</span> [ <span style="text-decoration:underline;">arg</span> ... ]     *
           The arguments are read as input to the shell and the resulting
@@ -1996,14 +1996,14 @@
           Resources controllable currently include <span style="text-decoration:underline;">cputime</span>, the maximum number
           of cpu-seconds to be used by each process, <span style="text-decoration:underline;">filesize</span>, the largest
           single file that can be created, <span style="text-decoration:underline;">datasize</span>, the maximum growth of the
-          data region via <a href="http://IRIX/man/sbrk">sbrk(2) DBG@1='<span style="text-decoration:underline;">'</a> beyond the end of the program text,
+          data region via <a href="http://IRIX/man/sbrk">sbrk(2)</a> beyond the end of the program text,
           <span style="text-decoration:underline;">stacksize</span>, the maximum size of the automatically-extended stack
           region, <span style="text-decoration:underline;">coredumpsize</span>, the size of the largest core dump created,
           <span style="text-decoration:underline;">memoryuse</span>, the maximum amount of physical memory a process can have
           allocated to it at a given time, <span style="text-decoration:underline;">descriptors</span>, the maximum number of
           open files, <span style="text-decoration:underline;">vmemory</span>, the maximum total virtual size of the process,
           including text, data, heap, shared memory, mapped files, stack, and
-          so on, and <span style="text-decoration:underline;">threads</span>, the maximum number of <a href="http://IRIX/man/pthreads">pthreads(5) DBG@1='<span style="text-decoration:underline;">'</a> the process
+          so on, and <span style="text-decoration:underline;">threads</span>, the maximum number of <a href="http://IRIX/man/pthreads">pthreads(5)</a> the process
           may create.
 
           The <span style="text-decoration:underline;">maximum</span>-<span style="text-decoration:underline;">use</span> can be given as a (floating point or integer) number
@@ -2025,7 +2025,7 @@
 
      <span style="text-decoration:underline;font-weight:bold;">print</span> [ <span style="text-decoration:underline;font-weight:bold;">-Rnprsu</span>[<span style="text-decoration:underline;">n</span> ] ] [ <span style="text-decoration:underline;">arg</span> ... ]
           The shell output mechanism.  With no flags or with flag <span style="text-decoration:underline;font-weight:bold;">-</span> or <span style="text-decoration:underline;font-weight:bold;">--</span> the
-          arguments are printed on standard output as described by <a href="http://IRIX/man/echo">echo(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.
+          arguments are printed on standard output as described by <a href="http://IRIX/man/echo">echo(1)</a>.
           In raw mode, <span style="text-decoration:underline;font-weight:bold;">-R</span> or <span style="text-decoration:underline;font-weight:bold;">-r</span>, the escape conventions of <span style="text-decoration:underline;font-weight:bold;">echo</span> are ignored.
           The <span style="text-decoration:underline;font-weight:bold;">-R</span> option prints all subsequent arguments and options other than
           <span style="text-decoration:underline;font-weight:bold;">-n</span>.  The <span style="text-decoration:underline;font-weight:bold;">-p</span> option causes the arguments to be written onto the pipe
@@ -2399,7 +2399,7 @@
      <span style="text-decoration:underline;font-weight:bold;">ulimit</span> [ <span style="text-decoration:underline;font-weight:bold;">-[HS][a</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">cdfnstvmp]</span> ]
      <span style="text-decoration:underline;font-weight:bold;">ulimit</span> [ <span style="text-decoration:underline;font-weight:bold;">-[HS][c</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">d</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">f</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">n</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">s</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">t</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">v</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">m</span> <span style="text-decoration:underline;font-weight:bold;">|</span> <span style="text-decoration:underline;font-weight:bold;">p]</span> <span style="text-decoration:underline;font-weight:bold;">]</span> <span style="text-decoration:underline;">limit</span>
           <span style="text-decoration:underline;font-weight:bold;">ulimit</span> prints or sets hard or soft resource limits.  These limits
-          are described in <a href="http://IRIX/man/getrlimit">getrlimit(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.
+          are described in <a href="http://IRIX/man/getrlimit">getrlimit(2)</a>.
 
           If <span style="text-decoration:underline;">limit</span> is not present, <span style="text-decoration:underline;font-weight:bold;">ulimit</span> prints the specified limits.  Any
           number of limits may be printed at one time.  The <span style="text-decoration:underline;font-weight:bold;">-a</span> option prints
@@ -2409,7 +2409,7 @@
           string <span style="text-decoration:underline;font-weight:bold;">unlimited</span> requests the largest valid limit.  Limits may be
           set for only one resource at a time.  Any user may set a soft limit
           to any value below the hard limit.  Any user may lower a hard limit.
-          Only a privileged user may raise a hard limit; see <a href="http://IRIX/man/su">su(1M) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.
+          Only a privileged user may raise a hard limit; see <a href="http://IRIX/man/su">su(1M)</a>.
 
           The <span style="text-decoration:underline;font-weight:bold;">-H</span> option specifies a hard limit.  The <span style="text-decoration:underline;font-weight:bold;">-S</span> option specifies a
           soft limit.  If neither option is specified, <span style="text-decoration:underline;font-weight:bold;">ulimit</span> sets both limits
@@ -2428,7 +2428,7 @@
           <span style="text-decoration:underline;font-weight:bold;">-n</span>   maximum file descriptor plus 1
 
           <span style="text-decoration:underline;font-weight:bold;">-s</span>   maximum size of stack segment (in kbytes).  Note that if this
-               is set too high, <a href="http://IRIX/man/sproc">sproc(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a> may fail.
+               is set too high, <a href="http://IRIX/man/sproc">sproc(2)</a> may fail.
 
           <span style="text-decoration:underline;font-weight:bold;">-t</span>   maximum CPU time (in seconds)
 
@@ -2436,7 +2436,7 @@
 
           <span style="text-decoration:underline;font-weight:bold;">-m</span>   maximum size of resident memory (in kbytes)
 
-          <span style="text-decoration:underline;font-weight:bold;">-p</span>   maximum number of <a href="http://IRIX/man/pthreads">pthreads(5) DBG@1='<span style="text-decoration:underline;">'</a> that process may create.
+          <span style="text-decoration:underline;font-weight:bold;">-p</span>   maximum number of <a href="http://IRIX/man/pthreads">pthreads(5)</a> that process may create.
 
           If no option is given, <span style="text-decoration:underline;font-weight:bold;">-f</span> is assumed.
 
@@ -2456,9 +2456,9 @@
 
 
      <span style="text-decoration:underline;font-weight:bold;">umask</span> [ <span style="text-decoration:underline;font-weight:bold;">-S</span> ][ <span style="text-decoration:underline;">mask</span> ]
-          The user file-creation mask is set to <span style="text-decoration:underline;">mask</span> [see <a href="http://IRIX/man/umask">umask(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>].  <span style="text-decoration:underline;">mask</span> can
+          The user file-creation mask is set to <span style="text-decoration:underline;">mask</span> [see <a href="http://IRIX/man/umask">umask(2)</a>].  <span style="text-decoration:underline;">mask</span> can
           either be an octal number or a symbolic value as described in
-          <a href="http://IRIX/man/chmod">chmod(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>.  If a symbolic value is given, the new umask value is the
+          <a href="http://IRIX/man/chmod">chmod(1)</a>.  If a symbolic value is given, the new umask value is the
           complement of the result of applying <span style="text-decoration:underline;">mask</span> to the complement of the
           previous umask value.  If <span style="text-decoration:underline;">mask</span> is omitted, the current value of the
           mask is printed.  If <span style="text-decoration:underline;font-weight:bold;">-S</span> is specified, the symbolic output is in the
@@ -2525,7 +2525,7 @@
                function, or a reserved word.
 
    <span style="font-weight:bold;">Invocation</span>
-     If the shell is invoked by <a href="http://IRIX/man/exec">exec(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>, and the first character of argument
+     If the shell is invoked by <a href="http://IRIX/man/exec">exec(2)</a>, and the first character of argument
      zero (<span style="text-decoration:underline;font-weight:bold;">$0</span>) is <span style="text-decoration:underline;font-weight:bold;">-</span>, the shell is assumed to be a <span style="text-decoration:underline;font-weight:bold;">login</span> shell and commands are
      read from <span style="text-decoration:underline;font-weight:bold;">/etc/profile</span> and then from either <span style="text-decoration:underline;font-weight:bold;">.profile</span> in the current
      directory or <span style="text-decoration:underline;font-weight:bold;">$HOME/.profile</span>, if either file exists.  Next, commands are
@@ -2545,7 +2545,7 @@
                  to file descriptor 2.
 
      <span style="text-decoration:underline;font-weight:bold;">-i</span>          If the <span style="text-decoration:underline;font-weight:bold;">-i</span> flag is present or if the shell input and output
-                 are attached to a terminal (as told by <a href="http://IRIX/man/ioctl">ioctl(2) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>) this shell
+                 are attached to a terminal (as told by <a href="http://IRIX/man/ioctl">ioctl(2)</a>) this shell
                  is <span style="text-decoration:underline;">interactive</span>.  In this case TERM is ignored (so that <span style="text-decoration:underline;font-weight:bold;">kill</span> <span style="text-decoration:underline;font-weight:bold;">0</span>
                  does not kill an interactive shell) and INTR is caught and
                  ignored (so that <span style="text-decoration:underline;font-weight:bold;">wait</span> is interruptible).  In all cases, QUIT
@@ -2562,7 +2562,7 @@
      standard shell.  The actions of the restricted <span style="text-decoration:underline;font-weight:bold;">sh</span> are identical to those
      of <span style="text-decoration:underline;font-weight:bold;">sh</span>, except that the following are disallowed:
 
-          Changing directory [see <a href="http://IRIX/man/cd">cd(1) DBG@1='<span style="text-decoration:underline;font-weight:bold;">'</a>]
+          Changing directory [see <a href="http://IRIX/man/cd">cd(1)</a>]
           Setting the value of <span style="text-decoration:underline;font-weight:bold;">SHELL</span>, <span style="text-decoration:underline;font-weight:bold;">ENV</span>, or <span style="text-decoration:underline;font-weight:bold;">PATH</span>
           Specifying path or command names containing <span style="text-decoration:underline;font-weight:bold;">/</span>
           Redirecting output (<span style="text-decoration:underline;font-weight:bold;">&gt;</span>, <span style="text-decoration:underline;font-weight:bold;">&gt;|,</span> <span style="text-decoration:underline;font-weight:bold;">&lt;&gt;,</span> and <span style="text-decoration:underline;font-weight:bold;">&gt;&gt;</span>)
@@ -2654,10 +2654,10 @@
 
 
 <span style="font-weight:bold;">SEE</span> <span style="font-weight:bold;">ALSO</span>
-     <a href="http://IRIX/man/emacs">emacs(1),</a> <a href="http://IRIX/man/cat">cat(1),</a> <a href="http://IRIX/man/cd">cd(1),</a> <a href="http://IRIX/man/chmod">chmod(1),</a> <a href="http://IRIX/man/cut">cut(1),</a> <a href="http://IRIX/man/echo">echo(1),</a> <a href="http://IRIX/man/env">env(1),</a> <a href="http://IRIX/man/newgrp">newgrp(1M),</a>
-     <a href="http://IRIX/man/paste">paste(1),</a> <a href="http://IRIX/man/stty">stty(1),</a> <a href="http://IRIX/man/test">test(1),</a> <a href="http://IRIX/man/umask">umask(1),</a> <a href="http://IRIX/man/vi">vi(1),</a> <a href="http://IRIX/man/dup">dup(2),</a> <a href="http://IRIX/man/exec">exec(2),</a> <a href="http://IRIX/man/fork">fork(2),</a>
-     <a href="http://IRIX/man/ioctl">ioctl(2),</a> <a href="http://IRIX/man/lseek">lseek(2),</a> <a href="http://IRIX/man/pipe">pipe(2),</a> <a href="http://IRIX/man/signal">signal(2),</a> <a href="http://IRIX/man/ulimit">ulimit(2),</a> <a href="http://IRIX/man/umask">umask(2),</a> <a href="http://IRIX/man/wait">wait(2),</a>
-     <a href="http://IRIX/man/rand">rand(3C),</a> a.<a href="http://IRIX/man/out">out(4),</a> <a href="http://IRIX/man/profile">profile(4),</a> <a href="http://IRIX/man/environ">environ(5).</a>
+     <a href="http://IRIX/man/emacs">emacs(1)</a>, <a href="http://IRIX/man/cat">cat(1)</a>, <a href="http://IRIX/man/cd">cd(1)</a>, <a href="http://IRIX/man/chmod">chmod(1)</a>, <a href="http://IRIX/man/cut">cut(1)</a>, <a href="http://IRIX/man/echo">echo(1)</a>, <a href="http://IRIX/man/env">env(1)</a>, <a href="http://IRIX/man/newgrp">newgrp(1M)</a>,
+     <a href="http://IRIX/man/paste">paste(1)</a>, <a href="http://IRIX/man/stty">stty(1)</a>, <a href="http://IRIX/man/test">test(1)</a>, <a href="http://IRIX/man/umask">umask(1)</a>, <a href="http://IRIX/man/vi">vi(1)</a>, <a href="http://IRIX/man/dup">dup(2)</a>, <a href="http://IRIX/man/exec">exec(2)</a>, <a href="http://IRIX/man/fork">fork(2)</a>,
+     <a href="http://IRIX/man/ioctl">ioctl(2)</a>, <a href="http://IRIX/man/lseek">lseek(2)</a>, <a href="http://IRIX/man/pipe">pipe(2)</a>, <a href="http://IRIX/man/signal">signal(2)</a>, <a href="http://IRIX/man/ulimit">ulimit(2)</a>, <a href="http://IRIX/man/umask">umask(2)</a>, <a href="http://IRIX/man/wait">wait(2)</a>,
+     <a href="http://IRIX/man/rand">rand(3C)</a>, a.<a href="http://IRIX/man/out">out(4)</a>, <a href="http://IRIX/man/profile">profile(4)</a>, <a href="http://IRIX/man/environ">environ(5)</a>.
 
      Morris I. Bolsky and David G. Korn, <span style="text-decoration:underline;">The</span> <span style="text-decoration:underline;">KornShell</span> <span style="text-decoration:underline;">Command</span> <span style="text-decoration:underline;">and</span> <span style="text-decoration:underline;">Programming</span>
      <span style="text-decoration:underline;">Language</span>, Prentice Hall, 1989
@@ -2691,9 +2691,9 @@
      Sometimes, particularly when using wildcards, the shell will fail to
      execute a command, and complain with the message
         <span style="font-weight:bold;">arg</span> <span style="font-weight:bold;">list</span> <span style="font-weight:bold;">too</span> <span style="font-weight:bold;">long</span>
-     This can often be avoided by using multiple commands, the <a href="http://IRIX/man/xargs">xargs(1) DBG@1='<span style="text-decoration:underline;">'</a>
+     This can often be avoided by using multiple commands, the <a href="http://IRIX/man/xargs">xargs(1)</a>
      command, or by increasing the <span style="font-weight:bold;">ncargs</span> kernel parameter with the
-     <a href="http://IRIX/man/systune">systune(1m) DBG@1='<span style="text-decoration:underline;">'</a> command.
+     <a href="http://IRIX/man/systune">systune(1m)</a> command.
 
 <span style="font-weight:bold;">COMPATIBILITY</span> <span style="font-weight:bold;">ISSUES</span>
      To retain some backward compatibility to the Bourne shell, certain Korn

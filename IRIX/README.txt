@@ -1,9 +1,9 @@
 
  @what - some little tools to help render SGI IRIX "cat" manual files via HTML
-           The SGI IRIX cat man files are "pre-process man pages (so formatted for ANSI terminal.
-           This is how majority of IRIX manual pages are provided, with only a subset available as NROFF files.
+           The SGI IRIX cat man files are "pre-processed" man pages (so nroff formatted for ANSI terminal.
+           This is how majority of IRIX manual pages are provided, with only a subset available as standard NROFF files.
 
-           To to view with broswer you need to do something like:
+           To view with broswer you need to do something like:
              $ cat sh.term | ul | aha > sh.ul.aha.html
              $ xsltproc -o - style-ansi2.xslt sh.ul.aha.html | sed -f man-links.sed > sh.ul.aha.xslt.sed.html
 
