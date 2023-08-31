@@ -5,7 +5,7 @@
 
            To view with broswer you need to do something like:
              $ cat sh.term | ul | aha > sh.ul.aha.html
-             $ xsltproc -o - style-ansi2.xslt sh.ul.aha.html | sed -f man-links.sed > sh.ul.aha.xslt.sed.html
+             $ xsltproc -o - style-ansi2.xslt sh.ul.aha.html | perl man-clean-link.pl > sh.ul.aha.xslt.perl.html
 
            where:
              cat - standard unix commmand
@@ -16,11 +16,13 @@
              xsltproc - XML Style Sheet Transformation engineto to clean up "underline/bold style" 
              sed - standard unit stream editor to put HTML links in
              style-ansi2.xslt  - the xml code to tidy up underline
-             man-links.sed sed script to add hyperlinks
+             man-clean-link.pl perl script to cleanup headers/footers and add hyperlinks
+
+             irix-catman2html.sh - shell script to run pipeline: Usage ./irix-catman2html -d DIR -p PAGE
 
  @Notes: directory includes example rendition of IRIX sh man page
            sh.term - original IRIX page
-           sh.ul.aha.xslt.sed.html - the result of putting through pipeline
+           sh.ul.aha.xslt.perl.html - the result of putting through pipeline
 
  @author - John Hartley - Graphica Software / Dokmai Pty Ltd
 

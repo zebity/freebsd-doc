@@ -58,5 +58,5 @@ else
 	exit 1
 fi
 
-${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAG}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAG}.$$ | sed -fman-links.sed
+${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAG}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAG}.$$ | perl man-clean-link.pl
 
