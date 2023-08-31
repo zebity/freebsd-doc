@@ -19,7 +19,7 @@ EXPARG=2
 DIR=
 PAGE=
 
-echo "DBG>> ${0} - \$#='$#'"
+# echo "DBG>> ${0} - \$#='$#'"
 
 
 if [ $# -ne 4 ]; then
