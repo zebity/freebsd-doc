@@ -14,6 +14,7 @@
 
 use strict;
 use warnings;
+# use Switch;
 
 my $SPACE = 3;
 
@@ -24,17 +25,80 @@ my $EMPTY = 0;
 my $LAST = "";
 my $BC = 0;
 my $LINKS = 0;
+my $TITLE = "";
+my $HEADER = 1;
+my $FOOTER = 1;
+my $DISCARD = 0;
+my @ROUTE = ( "irix-6.5.30\\man?", "section=", "page=" );
+
+my @BUFFER = ();
+my $I = 0;
 
 my $IN = *STDIN;
 
+my $ARG = shift;
 
+while ($ARG) {
+	if ($ARG eq "-d") {
+		$DISCARD = 1;
+	} elsif ($ARG eq "-t") {
+		$TITLE = shift;
+	} elsif ($ARG eq "-s") {
+		$SPACE = shift;
+	} elsif ($ARG eq "-h") {
+		$HEADER = shift;
+	} elsif ($ARG eq "-f") {
+		$FOOTER = shift;
+	} elsif ($ARG eq "-f") {
+		@ROUTE = shift;
+	} else {
+		print "Usage: $ARGV[0] [-t TITLE] [-s SPACE] [-h HEADER=(0|1|2)] [-f FOOTER=(0|1|2) ] [-r ROUTE={'base', 'section', 'page'}]";
+	}
+	$ARG = shift;
+}
 
 while (<$IN>) {
 
 	if ($PRE == 1) {
 
-		if (/[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>.*/) {
-			if ($HEADERS == 0) {
+		if (/[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>/) {
+			# <span style="font-weight:bold;">ttdbserverd(8)</span>                                                  <span style="font-weight:bold;">ttdbserverd(8)</span>
+			if ($TITLE eq "") {
+				my $TMP = $_;
+				my $J = 0;
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) {
+					$TITLE = $1;
+					print "<title>$TITLE</title>\n";
+					$J++;
+				} else {
+					$TITLE = $BUFFER[0];
+				}
+				for (; $J < $I; $J++) {
+					print $BUFFER[$J];
+				}
+			}
+			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+				print;
+				$BC = 0;
+			}
+			$HEADERS++;
+		} elsif (/[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>UNIX<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>System<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>V<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>/) { 
+			#     <span style="font-weight:bold;">mwm(1X)</span>                   <span style="font-weight:bold;">UNIX</span> <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span>                   <span style="font-weight:bold;">mwm(1X)</span>
+			if ($TITLE eq "") {
+				my $TMP = $_;
+				my $J = 0;
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) { 
+					$TITLE = $1;
+					print "<title>$TITLE</title>\n";
+					$J++;
+				} else {
+					$TITLE = $BUFFER[0];
+				}
+				for (; $J < $I; $J++) {
+					print $BUFFER[$J];
+				}
+			}
+			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
 				print;
 				$BC = 0;
 			}
@@ -43,14 +107,32 @@ while (<$IN>) {
 			$BC++;
 			$EMPTY++;
 			if ($BC < $SPACE) {
-				print;
+				if ($TITLE eq "") {
+					$BUFFER[$I] = $_;
+					$I++;
+				} else {
+					print;
+				}
 			}
 		} elsif (/[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>.*/) {
 			$LAST = $_;
 			$FOOTERS++;
+			if ($FOOTER > 1) {
+				print;
+			}
+		} elsif (/[[:space:]]*Page [1-9][0-9]*[[:space:]]*[(]printed [1-9][0-9]*\/[1-3]*[0-9]\/[1-9][0-9][)]/) {
+			# Motif pages footer
+			#     Page 45                                         (printed 4/30/98)
+			$LAST = $_;
+			$FOOTERS++;
+			if ($FOOTER > 1) {
+				print;
+			}
 		} elsif (/<\/pre>/) {
 			$PRE = 0;
-			print $LAST;
+			if ($FOOTER == 1) {
+				print $LAST;
+			}
 			print "<!-- HEADERS: $HEADERS FOOTERS: $FOOTERS EMPTY: $EMPTY LINKS: $LINKS -->\n";
 			print;
 		} elsif (/[a-z][a-z_]*[(][1-9][a-zA-Z]*[)][^<]/) {
@@ -62,7 +144,7 @@ while (<$IN>) {
 			# example
 			# <span style="text-decoration:underline;font-weight:bold;">rsh</span><span style="text-decoration:underline;">_</span><span style="text-decoration:underline;font-weight:bold;">bsd</span>(1C))
 			#
-			$LINKS = s/<span [-a-zA-Z0-9=":;]*>([a-z][a-z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([a-z][a-z]*)<\/span>([(][1-9][a-zA-Z]*[)])/<a href="http:\/\/IRIX\/man\/$1_$2">$1_$2$3<\/a>/g;
+			$LINKS += s/<span [-a-zA-Z0-9=":;]*>([a-z][a-z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([a-z][a-z]*)<\/span>([(][1-9][a-zA-Z]*[)])/<a href="http:\/\/IRIX\/man\/$1_$2">$1_$2$3<\/a>/g;
 			$BC = 0;
 			# print "DBG>> MATCHED: XX_XX(nX)";
 			print;
@@ -73,14 +155,42 @@ while (<$IN>) {
 			# print "DBG>> MATCHED: XX(nX)";
 			print;
 		} else {
+			if ($TITLE eq "") {
+				$BUFFER[$I] = $_;
+				$I++;
+			} else {
+				if ($DISCARD == 0) {
+					print;
+				}
+			}		
 			$BC = 0;
-			print;
 		}
 	} else {
-		if (/<pre[-a-zA-Z0-9=":; ]*>/) {
+		if (/<title>[a-zA-Z][-a-zA-Z0-9_]*([(][1-9][a-zA-Z][)])*<\/title>/) {
+			if ($TITLE ne "") {
+				print "<title>$TITLE</title>\n"
+			} else {
+				$BUFFER[$I] = $_;
+				$I++;
+			}
+		} elsif (/<pre[-a-zA-Z0-9=":; ]*>/) {
 			$PRE = 1;
+			if ($TITLE eq "") {
+				$BUFFER[$I] = $_;
+				$I++;
+			} else {
+				print;
+			}		
 			$BC = 0;
+		} else {
+			if ($DISCARD == 0) { 
+				if ($I > 0 && $TITLE eq "") {
+					$BUFFER[$I] = $_;
+					$I++;
+				} else {
+					print;
+				}
+			}
 		}
-		print;
 	}
 }
