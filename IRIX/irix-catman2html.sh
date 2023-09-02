@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# @what - irix-catman2html - a mess of sripts and bits and pieces to take an old SGI IRIX preprossed man page
-#           and render is as html. So we need to zcat the man pagei, process the nroff bold/underline directives,
+# @what - irix-catman2html - a mess of scripts and bits and pieces to take an old SGI IRIX preprossed man page
+#           and render is as html. This need to: zcat the man pagei, process the nroff bold/underline directives,
 #           run it through ANSI terminal to html processor, do some css tidy up to remove hard to read white on black
 #           formatting (change to underline/bold), find and create links to referenced pages and
 #           remove extra blanks lines and page number and render as single continuoue HTML page
@@ -58,5 +58,5 @@ else
 	exit 1
 fi
 
-${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAG}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAG}.$$ | perl man-clean-link.pl
+${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAGE}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | perl man-clean-link.pl
 
