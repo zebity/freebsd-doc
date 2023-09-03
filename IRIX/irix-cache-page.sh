@@ -68,12 +68,12 @@ do
 	shift 
 done
 
-if [ ! -d ${DIR} ]; then
-	mkdir -p ${DIR}/${HTML}
-	mkdir -p ${DIR}/${INDEX}
+if [ ! -d "${DIR}" ]; then
+	mkdir -p "${DIR}/${HTML}"
+	mkdir -p "${DIR}/${INDEX}"
 fi
 
-if [ -f ${PATH} ]; then
+if [ -f "${PATH}" ]; then
 	FILE=`${BASENAME} ${PATH}`
 	PATHDIR=${PATH%${FILE}}
 	PAGE=${FILE%[.][zZ]}
@@ -85,12 +85,12 @@ fi
 # DBG
 # echo "DBG>> ${0} - FILE='${FILE}' PATHDIR='${PATHDIR}' PAGE='${PAGE}'"
 
-${TMP}=${TMP}${PAGE}.html
+TMP="${TMP}${PAGE}.html"
 
 ${CAT2HTML} -d ${PATHDIR} -p ${PAGE} -c ${PAGE} > ${TMP}
 if [ $? -eq 0 ]; then
 	TITLE=`${GREP} '<title>.*</title>' ${TMP}`
-	if [ ${TITLE} == "" ]; then
+	if [ "${TITLE}" == "" ]; then
 		${RM} ${TMP}
 		echo "Error - ${0} - Processsing: '${FILE}' - No <Title></Title> tag found in: '${TMP}'." 1>&2
 		exit 1;
@@ -107,13 +107,13 @@ if [ $? -eq 0 ]; then
 	# DBG
 	# echo "DBG>> ${0} TITLE='${TITLE}' KEY='${KEY}' SECTION='${SECTION}'"
 
-	HTML_DIR=${DIR}/${HTML}/${MAN}/${SECTION}
-	LINK_DIR=${DIR}/${INDEX}/${MAN}/${SECTION}
+	HTML_DIR="${DIR}/${HTML}/${MAN}/${SECTION}"
+	LINK_DIR="${DIR}/${INDEX}/${MAN}/${SECTION}"
 
-	if [ ! -d ${HTML_DIR} ]; then
+	if [ ! -d "${HTML_DIR}" ]; then
 		${MKDIR} -p ${HTML_DIR}
 	fi
-	if [ ! -d ${LINK_DIR} ]; then
+	if [ ! -d "${LINK_DIR}" ]; then
 		${MKDIR} -p ${LINK_DIR}
 	fi
 
@@ -124,6 +124,6 @@ if [ $? -eq 0 ]; then
 	echo "Info - ${0} - Added: '${HTML_DIR}/${KEY}.html'."
 fi 
 
-if [ -e ${TMP} ]; then
+if [ -e "${TMP}" ]; then
 	${RM} ${TMP}
 fi
