@@ -91,9 +91,10 @@ ${CAT2HTML} -d ${PATHDIR} -p ${PAGE} -c ${PAGE} > ${TMP}
 if [ $? -eq 0 ]; then
 	TITLE=`${GREP} '<title>.*</title>' ${TMP}`
 	if [ ${TITLE} == "" ]; then
+		${RM} ${TMP}
 		echo "Error - ${0} - Processsing: '${FILE}' - No <Title></Title> tag found in: '${TMP}'." 1>&2
 		exit 1;
-	}
+	fi
 	TITLE=${TITLE#<title>}
 	TITLE=${TITLE%</title>}
 	# DBG
@@ -125,4 +126,4 @@ fi
 
 if [ -e ${TMP} ]; then
 	${RM} ${TMP}
-}
+fi
