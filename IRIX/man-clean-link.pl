@@ -30,6 +30,7 @@ my $TITLE = "";
 my $HEADER = 1;
 my $FOOTER = 1;
 my $DISCARD = 0;
+my $HINT = "V";
 my $HOME = "http://help.graphica.com.au/man/irix-6.5.30/";
 my @ROUTE = ( "man?", "section=", "page=" );
 
@@ -53,12 +54,22 @@ while ($ARG) {
 		$FOOTER = shift;
 	} elsif ($ARG eq "-u") {
 		$HOME = shift;
+	} elsif ($ARG eq "-c") {
+		$HINT = shift;
 	} elsif ($ARG eq "-r") {
 		@ROUTE = shift;
 	} else {
 		print STDERR "Usage: $ARGV[0] [-d == DISCARD] [-t TITLE] [-s SPACE] [-h HEADER=(0|1|2)] [-f FOOTER=(0|1|2) ] [-u URL-HOME] [-r ROUTE=('base', 'section', 'page')]";
 	}
 	$ARG = shift;
+}
+
+if ($HINT ne "V") {
+	if ( $HINT =~ / ([a-z][-_\.a-z]*)/ ) {
+		$HINT = "LC";
+	} elsif ( $HINT =~ / ([A-Z][-_\.A-Z]*)/ ) {
+		$HINT = "UC";
+	}
 }
 
 while (<$IN>) {
@@ -119,10 +130,64 @@ while (<$IN>) {
 				my $J = 0;
 				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) {
 					#
-					# if all upper case then change to lower case (leave mixed/lower as is)
+					# Change case based on filname based hint
 					# 
 					my $P = $1;
-					if ($P =~ /([A-Z][_\.A-Z]*)([(][1-9][a-zA-Z]*[)])/ ) {
+					if ($HINT eq "LC") {
+						$TITLE = (lc $1) . $2; 
+					} else {
+						$TITLE = $P;
+					}
+					$J++;
+					print "<title>$TITLE</title>\n";
+				} else {
+					$TITLE = $BUFFER[0];
+				}
+				for (; $J < $I; $J++) {
+					print $BUFFER[$J];
+				}
+			}
+			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+				$BC = 0;
+				print;
+			}
+			$HEADERS++;
+		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-z-A-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>/ ) {
+			# Man D Headers
+			# <span style="font-weight:bold;">ASSERT(D3)</span>                                                          <span style="font-weight:bold;">ASSERT(D3)</span>
+			$IS = "ManD";
+			if ($TITLE eq "") {
+				my $TMP = $_;
+				my $J = 0;
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_a-zA-z]*[(][A-Z][1-9][)])<\/span>/) {
+					$TITLE = $1;
+					$J++;
+					print "<title>$TITLE</title>\n";
+				} else {
+					$TITLE = $BUFFER[0];
+				}
+				for (; $J < $I; $J++) {
+					print $BUFFER[$J];
+				}
+			}
+			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+				$BC = 0;
+				print;
+			}
+			$HEADERS++;
+		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Printing<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Tools<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>/ ) {
+			# Printing Tools
+			# <span style="font-weight:bold;">ACCEPT(1M)</span>                      <span style="font-weight:bold;">Printing</span> <span style="font-weight:bold;">Tools</span>                      <span style="font-weight:bold;">ACCEPT(1M)</span> 
+			$IS = "Printing";
+			if ($TITLE eq "") {
+				my $TMP = $_;
+				my $J = 0;
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) {
+					#
+					# Change case based on filname based hint
+					# 
+					my $P = $1;
+					if ($HINT eq "LC") {
 						$TITLE = (lc $1) . $2; 
 					} else {
 						$TITLE = $P;
@@ -142,7 +207,7 @@ while (<$IN>) {
 			}
 			$HEADERS++;
 		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>OpenGL<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Reference<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>/ ) {
-			# OpenGL Headerr
+			# OpenGL Header
 			# <span style="font-weight:bold;">glBegin(3G)</span>                    <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>                    <span style="font-weight:bold;">glBegin(3G)</span>
 			$IS = "OpenGL";
 			if ($TITLE eq "") {

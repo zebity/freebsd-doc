@@ -13,12 +13,20 @@
 
 # irix-catman2html -d dir -p page
 
-USAGE="Usage - ${0} -d dir -p page [-u URL-HOME]"
-VALOPTS="d:p:u:"
+ZCAT="/usr/bin/zcat"
+UL="/usr/bin/ul"
+AHA="/usr/local/bin/aha"
+XSLTPROC="/usr/local/bin/xsltproc"
+PERL="/usr/local/bin/perl"
+
+VALOPTS="c:d:p:u:"
+USAGE="Usage - ${0} -d dir -p page [-u URL-HOME] [-c HINT]"
+
 EXPARG=2
 DIR=
 PAGE=
 URL=
+HINT=
 
 # echo "DBG>> ${0} - \$#='$#'"
 
@@ -31,6 +39,7 @@ fi
 while getopts ${VALOPTS} a
 do
 	case $a in
+	c)	HINT="-c ${OPTARG}"; shift ;;
 	d)	DIR=${OPTARG}; shift ;;
 	p)	PAGE=${OPTARG}; shift ;;
 	u)	URL="-u ${OPTARG}"; shift ;;
@@ -43,7 +52,6 @@ do
 done
 
 SUFFIX=z
-CAT=zcat
 FILE=
 
 if [ -f "${DIR}/${PAGE}.z" ]; then
@@ -60,5 +68,5 @@ else
 	exit 1
 fi
 
-${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAGE}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | perl man-clean-link.pl $URL
+${ZCAT} ${FILE} | ${UL} | ${AHA} > /tmp/NAMTACXIRI.${PAGE}.$$ && ${XSLTPROC} -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | ${PERL} man-clean-link.pl ${URL} ${HINT}
 
