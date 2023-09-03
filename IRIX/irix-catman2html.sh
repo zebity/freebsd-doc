@@ -1,10 +1,10 @@
 #!/bin/sh
 #
 # @what - irix-catman2html - a mess of scripts and bits and pieces to take an old SGI IRIX preprossed man page
-#           and render is as html. This need to: zcat the man pagei, process the nroff bold/underline directives,
+#           and render is as html. This needs to: zcat the man page, process the nroff bold/underline directives,
 #           run it through ANSI terminal to html processor, do some css tidy up to remove hard to read white on black
 #           formatting (change to underline/bold), find and create links to referenced pages and
-#           remove extra blanks lines and page number and render as single continuoue HTML page
+#           remove extra blanks lines and page number to render as a single continuoue HTML page
 #
 # @author - John Hartley - Grephica Software / Dokmai Pty Ltd
 #
@@ -13,16 +13,17 @@
 
 # irix-catman2html -d dir -p page
 
-USAGE="Usage - ${0} -d dir -p page"
-VALOPTS="d:p:"
+USAGE="Usage - ${0} -d dir -p page [-u URL-HOME]"
+VALOPTS="d:p:u:"
 EXPARG=2
 DIR=
 PAGE=
+URL=
 
 # echo "DBG>> ${0} - \$#='$#'"
 
 
-if [ $# -ne 4 ]; then
+if [ $# -le 3 ]; then
 	echo "${USAGE}" 1>&2
 	exit 1
 fi
@@ -32,6 +33,7 @@ do
 	case $a in
 	d)	DIR=${OPTARG}; shift ;;
 	p)	PAGE=${OPTARG}; shift ;;
+	u)	URL="-u ${OPTARG}"; shift ;;
 	:)	echo "${USAGE}" 1>&2
 		exit 2;;
 	\?)	echo "${USAGE}" 1>&2
@@ -58,5 +60,5 @@ else
 	exit 1
 fi
 
-${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAGE}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | perl man-clean-link.pl
+${CAT} ${FILE} | ul | aha > /tmp/NAMTACXIRI.${PAGE}.$$ && xsltproc -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | perl man-clean-link.pl $URL
 
