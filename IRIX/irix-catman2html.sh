@@ -18,6 +18,7 @@ UL="/usr/bin/ul"
 AHA="/usr/local/bin/aha"
 XSLTPROC="/usr/local/bin/xsltproc"
 PERL="/usr/local/bin/perl"
+RM="/bin/rm"
 
 VALOPTS="c:d:p:u:"
 USAGE="Usage - ${0} -d dir -p page [-u URL-HOME] [-c HINT]"
@@ -68,5 +69,15 @@ else
 	exit 1
 fi
 
-${ZCAT} ${FILE} | ${UL} | ${AHA} > /tmp/NAMTACXIRI.${PAGE}.$$ && ${XSLTPROC} -o - style-ansi2.xslt /tmp/NAMTACXIRI.${PAGE}.$$ | ${PERL} man-clean-link.pl ${URL} ${HINT}
+TMP=/tmp/NAMTACXIRI.${PAGE}.$$
+
+${ZCAT} ${FILE} | ${UL} | ${AHA} > ${TMP} && ${XSLTPROC} -o - style-ansi2.xslt ${TMP} | ${PERL} man-clean-link.pl ${URL} ${HINT}
+
+RES=$?
+$if [ ${RES} eq 0 ];then
+	${RM} ${TMP}
+else
+	${RM} ${TMP}
+	exit ${RES}
+fi
 
