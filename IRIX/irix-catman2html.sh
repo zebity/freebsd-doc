@@ -74,7 +74,7 @@ TMP=/tmp/NAMTACXIRI.${PAGE}.$$
 ${ZCAT} ${FILE} | ${UL} | ${AHA} > ${TMP} && ${XSLTPROC} -o - style-ansi2.xslt ${TMP} | ${PERL} man-clean-link.pl ${URL} ${HINT}
 
 RES=$?
-$if [ ${RES} eq 0 ];then
+if [ ${RES} -eq 0 ];then
 	${RM} ${TMP}
 else
 	${RM} ${TMP}

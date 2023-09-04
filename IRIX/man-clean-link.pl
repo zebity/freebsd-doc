@@ -31,6 +31,7 @@ my $HEADER = 1;
 my $FOOTER = 1;
 my $DISCARD = 0;
 my $HINT = "V";
+my $FILE = "";
 my $HOME = "http://help.graphica.com.au/man/irix-6.5.30/";
 my @ROUTE = ( "man?", "section=", "page=" );
 
@@ -42,29 +43,30 @@ my $IN = *STDIN;
 my $ARG = shift;
 
 while ($ARG) {
-	if ($ARG eq "-d") {
+	if ($ARG eq "-c") {
+		$HINT = shift;
+	} elsif ($ARG eq "-d") {
 		$DISCARD = 1;
-	} elsif ($ARG eq "-t") {
-		$TITLE = shift;
-	} elsif ($ARG eq "-s") {
-		$SPACE = shift;
-	} elsif ($ARG eq "-h") {
-		$HEADER = shift;
 	} elsif ($ARG eq "-f") {
 		$FOOTER = shift;
-	} elsif ($ARG eq "-u") {
-		$HOME = shift;
-	} elsif ($ARG eq "-c") {
-		$HINT = shift;
+	} elsif ($ARG eq "-h") {
+		$HEADER = shift;
 	} elsif ($ARG eq "-r") {
 		@ROUTE = shift;
+	} elsif ($ARG eq "-s") {
+		$SPACE = shift;
+	} elsif ($ARG eq "-t") {
+		$TITLE = shift;
+	} elsif ($ARG eq "-u") {
+		$HOME = shift;
 	} else {
-		print STDERR "Usage: $ARGV[0] [-d == DISCARD] [-t TITLE] [-s SPACE] [-h HEADER=(0|1|2)] [-f FOOTER=(0|1|2) ] [-u URL-HOME] [-r ROUTE=('base', 'section', 'page')]";
+		print STDERR "Usage: $ARGV[0] [-c CASE-HINT] [-d == DISCARD] [-f FOOTER=(0|1|2) ] [-h HEADER=(0|1|2)] [-r ROUTE=('base', 'section', 'page')] [-s SPACE] [-t TITLE] [-u URL-HOME]";
 	}
 	$ARG = shift;
 }
 
 if ($HINT ne "V") {
+	$FILE = $HINT;
 	if ( $HINT =~ / ([a-z][-_\.a-z]*)/ ) {
 		$HINT = "LC";
 	} elsif ( $HINT =~ / ([A-Z][-_\.A-Z]*)/ ) {
@@ -152,29 +154,6 @@ while (<$IN>) {
 				print;
 			}
 			$HEADERS++;
-		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-z-A-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>/ ) {
-			# Man D Headers
-			# <span style="font-weight:bold;">ASSERT(D3)</span>                                                          <span style="font-weight:bold;">ASSERT(D3)</span>
-			$IS = "ManD";
-			if ($TITLE eq "") {
-				my $TMP = $_;
-				my $J = 0;
-				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_a-zA-z]*[(][A-Z][1-9][)])<\/span>/) {
-					$TITLE = $1;
-					$J++;
-					print "<title>$TITLE</title>\n";
-				} else {
-					$TITLE = $BUFFER[0];
-				}
-				for (; $J < $I; $J++) {
-					print $BUFFER[$J];
-				}
-			}
-			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
-				$BC = 0;
-				print;
-			}
-			$HEADERS++;
 		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Printing<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Tools<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][_a-zA-z]*[(][1-9][a-zA-Z]*[)]<\/span>/ ) {
 			# Printing Tools
 			# <span style="font-weight:bold;">ACCEPT(1M)</span>                      <span style="font-weight:bold;">Printing</span> <span style="font-weight:bold;">Tools</span>                      <span style="font-weight:bold;">ACCEPT(1M)</span> 
@@ -229,6 +208,80 @@ while (<$IN>) {
 				print;
 			}
 			$HEADERS++;
+		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-z-A-Z][-_a-zA-Z]*[(][A-Z][1-9][)]<\/span>/ ) {
+			# <span style="font-weight:bold;">ASSERT(D3)</span>                                                          <span style="font-weight:bold;">ASSERT(D3)</span>
+			$IS = "ManD";
+			if ($TITLE eq "") {
+				my $TMP = $_;
+				my $J = 0;
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_a-zA-z]*[(][A-Z][1-9][)])<\/span>/) {
+					$TITLE = $1;
+					$J++;
+					print "<title>$TITLE</title>\n";
+				} else {
+					$TITLE = $BUFFER[0];
+				}
+				for (; $J < $I; $J++) {
+					print $BUFFER[$J];
+				}
+			}
+			if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+				$BC = 0;
+				print;
+			}
+			$HEADERS++;
+		} elsif ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z][)]<\/span>.*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-z]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>[[:space:]]*$/ ) {
+			# <span style="font-weight:bold;">ASSERT(D3)</span>                                                          <span style="font-weight:bold;">ASSERT(D3)</span>
+			# OpenGL Header
+			# <span style="font-weight:bold;">glBegin(3G)</span>                    <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>                    <span style="font-weight:bold;">glBegin(3G)</span>
+			#      <span style="font-weight:bold;">BUILDPPD(1M)</span>    <span style="font-weight:bold;">K-Spool</span> <span style="font-weight:bold;">by</span> <span style="font-weight:bold;">Xinet</span> <span style="font-weight:bold;">(10/14/99</span> <span style="font-weight:bold;">10.1)</span>     <span style="font-weight:bold;">BUILDPPD(1M)</span>
+			# DBG
+			# print STDERR "DBG>> Generic Header check: '$_'.";
+			my $TMP = $_;
+			my $J = 0;
+			if ($TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>.*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ) {
+				#
+				# Double check it is a header ie 2 x name(section)
+				#
+				my $P = $1;
+				my $Q = $3;
+				# DBG
+				# print STDERR "DBG>> Generic Header check: P='$P' Q='$Q'.";
+				if ($P eq $Q) {
+					if ($TITLE eq "") {
+						$IS = "Generic";
+						#
+						# Change case based on filname based hint
+						# 
+						if ($HINT eq "LC") {
+							$TITLE = (lc $1) . $2; 
+						} else {
+							$TITLE = $P . $2;
+						}
+						$J++;
+						print "<title>$TITLE</title>\n";
+						for (; $J < $I; $J++) {
+							print $BUFFER[$J];
+						}
+					}
+					if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+						$BC = 0;
+						print;
+					}
+					$HEADERS++;
+				} else {
+					if ($TITLE eq "") {
+						$BC = 0;
+						$BUFFER[$I] = $_;
+						$I++;
+					} else {
+						print;
+					}
+				}
+			} else {
+				print STDERR "Error - unable to process potential header: '$_'.";
+				exit 1;
+			}
 		} elsif ( /^[[:space:]]*$/ ) {
 			$BC++;
 			$EMPTY++;
@@ -245,31 +298,84 @@ while (<$IN>) {
 			# OpenGL Footer
 			$LAST = $_;
 			$FOOTERS++;
-			if ($FOOTER > 1) {
-				print;
-			}
-		} elsif ( /[[:space:]]*Page [1-9][0-9]*[[:space:]]*[(]printed [1-9][0-9]*\/[1-3]*[0-9]\/[1-9][0-9][)]/ ) {
+			if ($TITLE eq "") {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						$BUFFER[$I] = $_;
+						$I++;
+						$BC = 0;
+					}
+				}
+			} else {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						print;
+						$BC = 0;
+					}
+				}
+			}		
+		} elsif ( /[[:space:]]*Page [1-9][0-9]*[[:space:]]*[(]printed [1-9][0-9]*\/[1-3]*[0-9]\/[0-9]*[)]/ ) {
 			# Motif pages footer
 			#     Page 45                                         (printed 4/30/98)
 			$LAST = $_;
 			$FOOTERS++;
-			if ($FOOTER > 1) {
-				print;
-			}
+			if ($TITLE eq "") {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						$BUFFER[$I] = $_;
+						$I++;
+						$BC = 0;
+					}
+				}
+			} else {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						print;
+						$BC = 0;
+					}
+				}
+			}		
 		} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>.*/ ) {
 			# OpenGL Footer
 			#                                                                        <span style="font-weight:bold;">Page</span> <span style="font-weight:bold;">2</span>
 			$LAST = $_;
 			$FOOTERS++;
-			if ($FOOTER > 1) {
-				print;
-			}
+			if ($TITLE eq "") {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						$BUFFER[$I] = $_;
+						$I++;
+						$BC = 0;
+					}
+				}
+			} else {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						print;
+						$BC = 0;
+					}
+				}
+			}		
 		} elsif ( /<\/pre>/ ) {
 			$PRE = 0;
+			if ($TITLE eq "") {
+				my $J = 0;
+				if ($FILE eq "") {
+					$FILE = "UNTITLED." . $$ . "(U1)";
+				} else {
+					$FILE = $FILE . "(U1)";
+				}
+				$TITLE = $FILE;
+				$J++;
+				print "<title>$TITLE</title>\n";
+                                for (; $J < $I; $J++) {
+                                        print $BUFFER[$J];
+                                }
+			}
 			if ($FOOTER == 1) {
 				print $LAST;
 			}
-			print "<!-- Rendered by irix-cat2html.sh: HEADERS: $HEADERS FOOTERS: $FOOTERS EMPTY: $EMPTY LINKS: $LINKS -->\n";
+			print "<!-- Rendered by irix-cat2html.sh: IS: '$IS' HEADERS: $HEADERS FOOTERS: $FOOTERS EMPTY: $EMPTY LINKS: $LINKS -->\n";
 			print;
 		} elsif ( /[a-zA-Z][a-zA-Z_\.]*[(][1-9][a-zA-Z]*[)][^<]/ ) {
 			$LINKS += s/([a-zA-Z][a-zA-Z_\.]*)[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$2&$ROUTE[2]$1">$1($2)<\/a>/g;

@@ -69,8 +69,8 @@ do
 done
 
 if [ ! -d "${DIR}" ]; then
-	mkdir -p "${DIR}/${HTML}"
-	mkdir -p "${DIR}/${INDEX}"
+	${MKDIR} -p "${DIR}/${HTML}"
+	${MKDIR} -p "${DIR}/${INDEX}"
 fi
 
 if [ -f "${PATH}" ]; then
