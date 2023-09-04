@@ -230,7 +230,7 @@ while (<$IN>) {
 				print;
 			}
 			$HEADERS++;
-		} elsif ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z][)]<\/span>.*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-z]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>[[:space:]]*$/ ) {
+		} elsif ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z]*[)]<\/span>.*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-z]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>[[:space:]]*$/ ) {
 			# <span style="font-weight:bold;">ASSERT(D3)</span>                                                          <span style="font-weight:bold;">ASSERT(D3)</span>
 			# OpenGL Header
 			# <span style="font-weight:bold;">glBegin(3G)</span>                    <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>                    <span style="font-weight:bold;">glBegin(3G)</span>
@@ -255,6 +255,55 @@ while (<$IN>) {
 						# 
 						if ($HINT eq "LC") {
 							$TITLE = (lc $1) . $2; 
+						} else {
+							$TITLE = $P . $2;
+						}
+						$J++;
+						print "<title>$TITLE</title>\n";
+						for (; $J < $I; $J++) {
+							print $BUFFER[$J];
+						}
+					}
+					if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+						$BC = 0;
+						print;
+					}
+					$HEADERS++;
+				} else {
+					if ($TITLE eq "") {
+						$BC = 0;
+						$BUFFER[$I] = $_;
+						$I++;
+					} else {
+						print;
+					}
+				}
+			} else {
+				print STDERR "Error - unable to process potential header: '$_'.";
+				exit 1;
+			}
+		} elsif ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z]*[)]<\/span>[[:space:]]*$/ ) {
+		        #                                      <span style="font-weight:bold;">SoPointLightDragger(3IV)</span>
+			# DBG
+			# print STDERR "DBG>> Generic Header check: '$_'.";
+			my $TMP = $_;
+			my $J = 0;
+			if ($TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ) {
+				#
+				# Double check it is a header ie name(section) == file name
+				#
+				my $P = $1;
+				my $Q = $2;
+				# DBG
+				# print STDERR "DBG>> Generic Header check: P='$P' Q='$Q' FILE='$FILE'.";
+				if (lc($P) eq lc($FILE)) {
+					if ($TITLE eq "") {
+						$IS = "Generic";
+						#
+						# Change case based on filname based hint
+						# 
+						if ($HINT eq "LC") {
+							$TITLE =  lc($1) . $2; 
 						} else {
 							$TITLE = $P . $2;
 						}
@@ -355,7 +404,28 @@ while (<$IN>) {
 						$BC = 0;
 					}
 				}
-			}		
+			}
+		} elsif ( $IS eq "Generic" && /^[[:space:]]*Page[[:space:]]*[1-9][0-9]*[[:space:]]*$/ ) {
+			# Generic minimal Footer
+			# Page 1
+			$LAST = $_;
+			$FOOTERS++;
+			if ($TITLE eq "") {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						$BUFFER[$I] = $_;
+						$I++;
+						$BC = 0;
+					}
+				}
+			} else {
+				if ($FOOTER > 1) {
+					if ($DISCARD == 0) {
+						print;
+						$BC = 0;
+					}
+				}
+			}
 		} elsif ( /<\/pre>/ ) {
 			$PRE = 0;
 			if ($TITLE eq "") {
