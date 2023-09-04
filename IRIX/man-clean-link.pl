@@ -31,6 +31,7 @@ my $HEADER = 1;
 my $FOOTER = 1;
 my $DISCARD = 0;
 my $HINT = "V";
+my $CASE = "";
 my $FILE = "";
 my $HOME = "http://help.graphica.com.au/man/irix-6.5.30/";
 my @ROUTE = ( "man?", "section=", "page=" );
@@ -67,11 +68,15 @@ while ($ARG) {
 
 if ($HINT ne "V") {
 	$FILE = $HINT;
-	if ( $HINT =~ / ([a-z][-_\.a-z]*)/ ) {
-		$HINT = "LC";
-	} elsif ( $HINT =~ / ([A-Z][-_\.A-Z]*)/ ) {
-		$HINT = "UC";
+	if ( $HINT eq lc($HINT) ) {
+		$CASE = "LC";
+	} elsif ( $HINT eq uc($HINT) ) {
+		$CASE = "UC";
+	} else {
+		$CASE="V";
 	}
+	# DBG
+	# print STDERR "DBG>> Setting HINT='$HINT' FILE='$FILE' CASE='$CASE'";
 }
 
 while (<$IN>) {
@@ -130,15 +135,15 @@ while (<$IN>) {
 			if ($TITLE eq "") {
 				my $TMP = $_;
 				my $J = 0;
-				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) {
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*)([(][1-9][a-zA-Z]*[)])<\/span>/) {
 					#
 					# Change case based on filname based hint
 					# 
 					my $P = $1;
-					if ($HINT eq "LC") {
-						$TITLE = (lc $1) . $2; 
+					if ($CASE eq "LC") {
+						$TITLE = lc($1) . $2; 
 					} else {
-						$TITLE = $P;
+						$TITLE = $P . $2;
 					}
 					$J++;
 					print "<title>$TITLE</title>\n";
@@ -161,15 +166,15 @@ while (<$IN>) {
 			if ($TITLE eq "") {
 				my $TMP = $_;
 				my $J = 0;
-				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*[(][1-9][a-zA-Z]*[)])<\/span>/) {
+				if ($TMP =~ /[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][_\.a-zA-z]*)([(][1-9][a-zA-Z]*[)])<\/span>/) {
 					#
 					# Change case based on filname based hint
 					# 
 					my $P = $1;
-					if ($HINT eq "LC") {
-						$TITLE = (lc $1) . $2; 
+					if ($CASE eq "LC") {
+						$TITLE = lc($1) . $2; 
 					} else {
-						$TITLE = $P;
+						$TITLE = $P . $2;
 					}
 					$J++;
 					print "<title>$TITLE</title>\n";
@@ -253,8 +258,8 @@ while (<$IN>) {
 						#
 						# Change case based on filname based hint
 						# 
-						if ($HINT eq "LC") {
-							$TITLE = (lc $1) . $2; 
+						if ($CASE eq "LC") {
+							$TITLE = lc($1) . $2; 
 						} else {
 							$TITLE = $P . $2;
 						}
@@ -263,6 +268,60 @@ while (<$IN>) {
 						for (; $J < $I; $J++) {
 							print $BUFFER[$J];
 						}
+					}
+					if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
+						$BC = 0;
+						print;
+					}
+					$HEADERS++;
+				} else {
+					if ($TITLE eq "") {
+						$BC = 0;
+						$BUFFER[$I] = $_;
+						$I++;
+					} else {
+						print;
+					}
+				}
+			} else {
+				print STDERR "Error - unable to process potential header: '$_'.";
+				exit 1;
+			}
+		} elsif ( /^[[:space:]]*[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z]*[)][[:space:]]*[a-zA-Z][-_\.a-zA-Z]*[(][a-zA-Z1-9][1-9a-zA-Z]*[)][[:space:]]*$/ ) {
+			# a.out Header
+			# A.OUT(3)A.OUT(3)
+			# DBG
+			# print STDERR "DBG>> Generic Header check: '$_'.";
+			my $TMP = $_;
+			my $J = 0;
+			if ($TMP =~ /^[[:space:]]*([a-zA-Z][_\.a-zA-z]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*([a-zA-Z][_\.a-zA-z]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ) {
+				#
+				# Double check it is a header ie 2 x name(section)
+				#
+				my $P = $1;
+				my $Q = $3;
+				# DBG
+				# print STDERR "DBG>> Generic Header check: P='$P' Q='$Q'.";
+				if ($P eq $Q) {
+					if ($TITLE eq "") {
+						$IS = "Generic";
+						#
+						# Change case based on filname based hint
+						# 
+						if ($CASE eq "LC") {
+							$TITLE = lc($1) . $2;
+							# DBG 
+							# print STDERR "DBG>> Generic Header change case: TITLE='$TITLE'.";
+						} else {
+							$TITLE = $P . $2;
+						}
+						$J++;
+						print "<title>$TITLE</title>\n";
+						for (; $J < $I; $J++) {
+							print $BUFFER[$J];
+						}
+						# DBG
+						# print STDERR "DBG>> Generic Header - HINT='$HINT' CASE='$CASE' TITLE='$TITLE'.";
 					}
 					if ($HEADER != 0 && ($HEADERS == 0 || $HEADER == 2)) {
 						$BC = 0;
@@ -302,7 +361,7 @@ while (<$IN>) {
 						#
 						# Change case based on filname based hint
 						# 
-						if ($HINT eq "LC") {
+						if ($CASE eq "LC") {
 							$TITLE =  lc($1) . $2; 
 						} else {
 							$TITLE = $P . $2;
