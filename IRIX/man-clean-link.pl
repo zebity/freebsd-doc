@@ -42,6 +42,7 @@ my @HDRRES = ();
 my @BUFFER = ();
 my $I = 0;
 my $J = 0;
+my $SZ = 0;
 
 sub IS_HEADER {
 	#
@@ -70,7 +71,7 @@ sub IS_HEADER {
 	my $TMP = $_;
 	my @MATCHES = $TMP =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/g ;
 
-	if (@MATCHES == 2 && ($MATCHES[0] eq $MATCHES[1])) { 
+	if ((0+@MATCHES) == 2 && ($MATCHES[0] eq $MATCHES[1])) { 
 
 		@PS = $MATCHES[0] =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/g ; 
 		$RES[0] = 1;
@@ -95,7 +96,7 @@ sub IS_HEADER {
 		$TMP = $_;
 		@MATCHES = $TMP =~ /[a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]/g ;
 
-		if (@MATCHES == 2 && $MATCHES[0] eq $MATCHES[1]) {
+		if ((0+@MATCHES) == 2 && $MATCHES[0] eq $MATCHES[1]) {
 			@PS = $MATCHES[0] =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/g ; 
 			$RES[0] = 1;
 			if ($TITLE ne "") {
@@ -119,7 +120,7 @@ sub IS_HEADER {
 			$TMP = $_;
 			@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/ ;
 
-			if (@PS == 2 && (lc($PS[0] . $PS[1]) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
+			if ((0+@PS) == 2 && (lc($PS[0] . $PS[1]) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
 
 				$RES[0] = 1;
 				if ($TITLE ne "") {
@@ -141,9 +142,12 @@ sub IS_HEADER {
 				# <span style="font-weight:bold;">glCopyConvolutionFilter1DEXT(3G)</span>                              <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>
 
 				$TMP = $_;
-				@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>OpenGL<\/span>[[:space:]]<span [-a-zA-Z0-9=":;]*>Reference<\/span>[[:space:]]*$/ ;
-
-				if (@PS == 2 && (lc($PS[0] . $PS[1]) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
+				@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>OpenGL<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Reference<\/span>[[:space:]]*$/ ;
+				# @PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*.*OpenGL.*Reference.*$/ ;
+				# DBG
+				# $SZ = (0+@PS); 
+				# print STDERR "DBG>> IS_HEADER SZ=$SZ PS='@PS' TITLE='$TITLE' FILE='$FILE'.";
+				if ((0+@PS) == 2) {
 
 					$RES[0] = 1;
 					if ($TITLE ne "") {
@@ -161,36 +165,69 @@ sub IS_HEADER {
 
 				} else {
 					#
-					# IRIX Decorated underscore
-					# <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>                                                        <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>
+					# What!! Header
+					#
+					#      <span style="font-weight:bold;">SSH-PKCS11-HELPE</span>R(8) <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span> <span style="font-weight:bold;">(February</span> <span style="font-weight:bold;">10</span> <span style="font-weight:bold;">20</span>10<span style="font-weight:bold;">H</span>)<span style="font-weight:bold;">PKCS11-HELPER(8)</span>
 
 					$TMP = $_;
-					@MATCHES = $TMP =~ /<span [-a-zA-Z0-9=":;]*>[a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>/g ;
+					@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*<span [-a-zA-Z0-9=":;]*>System.*V<\/span>.*$/g ;
 
-					if (@MATCHES == 2) {
+					$TMP = "";
+					# DBG
+					# $SZ = (0+@MATCHES);
+					# print STDERR "DBG IS_HEADER - What: SZ=$SZ MATCHES='@MATCHES'.";
+					if ((0+@MATCHES) == 2) {
+						$TMP = $MATCHES[0] . $MATCHES[1];
+						@PS = $TMP =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ;
+					}
+					if (((0+@MATCHES) == 2 && (0+@PS) == 2) && (lc($TMP) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
 
-						@PARTSA = $MATCHES[0] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
-						@PARTSB = $MATCHES[1] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
-
+						$RES[0] = 1;
+						if ($TITLE ne "") {
+							$RES[1] = $TITLE;
+						} elsif ($CASE eq "LC") {
+							$RES[1] = lc($PS[0]) . $PS[1];
+						} elsif ($CASE eq "UC") {
+							$RES[1] = uc($PS[0]) . $PS[1];
+						} else {
+							$RES[1] = $PS[0] . $PS[1];	
+						}
+						$RES[2] = "What/Labeled";
+						# DBG
+						# print STDERR "DBG>> What Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
+					} else {
 						#
-						# Double check it is a header ie 2 x nam1_mam2(section)
-						#
-						if ($PARTSA[0] eq $PARTSB[0] && $PARTSA[1] eq $PARTSB[1]) {
-							$RES[0] = 1;
+						# IRIX Decorated underscore
+						# <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>                                                        <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>
 
-							my @PPS = $PARTSA[1] =~ /([-\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ; 
-							if ($TITLE ne "") {
-								$RES[1] = $TITLE;
-							} elsif ($CASE eq "LC") {
-								$RES[1] = lc($PS[0] . "_" . $PPS[0]) . $PPS[1];
-							} elsif ($CASE eq "UC") {
-								$RES[1] = uc($PS[0] . "_" . $PPS[0]) . $PPS[1];
-							} else {
-								$RES[1] = $PS[0] . $PS[1];	
+						$TMP = $_;
+						@MATCHES = $TMP =~ /<span [-a-zA-Z0-9=":;]*>[a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>/g ;
+
+						if ((0+@MATCHES) == 2) {
+
+							@PARTSA = $MATCHES[0] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
+							@PARTSB = $MATCHES[1] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
+
+							#
+							# Double check it is a header ie 2 x nam1_mam2(section)
+							#
+							if ($PARTSA[0] eq $PARTSB[0] && $PARTSA[1] eq $PARTSB[1]) {
+								$RES[0] = 1;
+
+								my @PPS = $PARTSA[1] =~ /([-\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ; 
+								if ($TITLE ne "") {
+									$RES[1] = $TITLE;
+								} elsif ($CASE eq "LC") {
+									$RES[1] = lc($PS[0] . "_" . $PPS[0]) . $PPS[1];
+								} elsif ($CASE eq "UC") {
+									$RES[1] = uc($PS[0] . "_" . $PPS[0]) . $PPS[1];
+								} else {
+									$RES[1] = $PS[0] . $PS[1];	
+								}
+								$RES[2] = "IRIX/Decorated";	
+								# DBG
+								# print STDERR "DBG>> IRIX / Decorated Header check: P[0]='$PARTSA[0]' P[1]='$PARTSA[1]'.";
 							}
-							$RES[2] = "IRIX/Decorated";	
-							# DBG
-							# print STDERR "DBG>> IRIX / Decorated Header check: P[0]='$PARTSA[0]' P[1]='$PARTSA[1]'.";
 						}
 					}
 				}
@@ -205,17 +242,17 @@ sub IS_FOOTER {
 	#
 	# IRIX Footer
 	# OpenGL Footer
-	if ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>.*/ ) {
+	if ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>[[:space:]]*$/ ) {
 		$LAST = $_;
 		$FOOTERS++;
 		$RES = 1;
-	} elsif ( /[[:space:]]*Page [1-9][0-9]*[[:space:]]*[(]printed [1-9][0-9]*\/[1-3]*[0-9]\/[0-9]*[)]/ ) {
+	} elsif ( /^[[:space:]]*Page [1-9][0-9]*[[:space:]]*[(]printed [1-9][0-9]*\/[1-3]*[0-9]\/[0-9]*[)][[:space:]]*$/ ) {
 		# Motif pages footer
 		#     Page 45                                         (printed 4/30/98)
 		$LAST = $_;
 		$FOOTERS++;
 		$RES = 1;
-	} elsif ( /[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>.*/ ) {
+	} elsif ( /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>Page<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>[1-9][0-9]*<\/span>[[:space:]]*/ ) {
 			# OpenGL Footer
 			#                                                                        <span style="font-weight:bold;">Page</span> <span style="font-weight:bold;">2</span>
 		$LAST = $_;
@@ -228,6 +265,10 @@ sub IS_FOOTER {
 		$FOOTERS++;
 		$RES = 1;
 	}
+	# DBG
+	# if ($RES == 1) {
+	#	print STDERR "DBG>> IS_FOOTER LINE='$_$'.";
+	#}
 	return $RES;
 }
 
@@ -317,7 +358,6 @@ while (<$IN>) {
 			}
 		} elsif (IS_FOOTER() == 1) {
 			$LAST = $_;
-			$FOOTERS++;
 			if ($FOOTER > 1 && $DISCARD == 0) {
 				BUFFER_OR_PRINT_LINE();
 				$BC = 0;
