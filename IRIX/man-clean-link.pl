@@ -87,7 +87,8 @@ sub IS_HEADER {
 		$RES[2] = "IRIX/Generic";
 		# DBG
 		# print STDERR "DBG>> IRIX / Generic Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
-	} else {
+	}	
+	if ($RES[0] != 1) {
 		#
 		# Plain 2 x name(section) case 
 		# a.out Header
@@ -111,17 +112,109 @@ sub IS_HEADER {
 			$RES[2] = "Plain";
 			# DBG
 			# print STDERR "DBG>> Generic / Plain Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
-		} else {
-			#
-			# Single name(section) header - compare with $TITLE or $FILE
-			#
-		        #                                      <span style="font-weight:bold;">SoPointLightDragger(3IV)</span>
+		}
+	}
+	if ($RES[0] != 1) {
+		#
+		# Single name(section) header - compare with $TITLE or $FILE
+		#
+	        #                                      <span style="font-weight:bold;">SoPointLightDragger(3IV)</span>
 
+		$TMP = $_;
+		@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/ ;
+
+		if ((0+@PS) == 2 && (lc($PS[0] . $PS[1]) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
+
+			$RES[0] = 1;
+			if ($TITLE ne "") {
+				$RES[1] = $TITLE;
+			} elsif ($CASE eq "LC") {
+				$RES[1] = lc($PS[0]) . $PS[1];
+			} elsif ($CASE eq "UC") {
+				$RES[1] = uc($PS[0]) . $PS[1];
+			} else {
+				$RES[1] = $PS[0] . $PS[1];	
+			}
+			$RES[2] = "Single";
+			# DBG
+			# print STDERR "DBG>> Generic / Plain Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
+		}
+	}
+	if ($RES[0] != 1) {
+		#
+		# Single name(section) header - with label
+		#
+		# <span style="font-weight:bold;">glCopyConvolutionFilter1DEXT(3G)</span>                              <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>
+		# <span style="font-weight:bold;">pfDoubleSCS(3pf)</span>              <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Performer</span> <span style="font-weight:bold;">3.2.2</span> <span style="font-weight:bold;">libpf</span> <span style="font-weight:bold;">C++</span> <span style="font-weight:bold;">Reference</span> <span style="font-weight:bold;">Pages</span>
+		# <span style="font-weight:bold;">glcMeasureCountedString(3G)</span>                          <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Character</span> <span style="font-weight:bold;">Renderer</span>
+
+		$TMP = $_;
+		@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>OpenGL<\/span>.*(Reference|Renderer).*<\/span>.*$/ ;
+		# @PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*.*OpenGL.*(Reference|Renderer).*$/ ;
+		# DBG
+		# $SZ = (0+@PS); 
+		# print STDERR "DBG>> IS_HEADER SZ=$SZ PS='@PS' TITLE='$TITLE' FILE='$FILE'.";
+		if ((0+@PS) == 3) {
+
+			$RES[0] = 1;
+			if ($TITLE ne "") {
+				$RES[1] = $TITLE;
+			} elsif ($CASE eq "LC") {
+				$RES[1] = lc($PS[0]) . $PS[1];
+			} elsif ($CASE eq "UC") {
+				$RES[1] = uc($PS[0]) . $PS[1];
+			} else {
+				$RES[1] = $PS[0] . $PS[1];	
+			}
+			$RES[2] = "Single/Labeled";
+			# DBG
+			# print STDERR "DBG>> Generic / Plain Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
+		}
+	}
+	if ($RES[0] != 1) {
+		#
+		# What!! Header
+		#
+		#      <span style="font-weight:bold;">SSH-PKCS11-HELPE</span>R(8) <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span> <span style="font-weight:bold;">(February</span> <span style="font-weight:bold;">10</span> <span style="font-weight:bold;">20</span>10<span style="font-weight:bold;">H</span>)<span style="font-weight:bold;">PKCS11-HELPER(8)</span>
+		#      <span style="font-weight:bold;">glutChangeToMenuEntry(3GLUT)GLUT</span> <span style="font-weight:bold;">(3.6</span>)<span style="font-weight:bold;">lutChangeToMenuEntry(3GLUT)</span>
+		#      <span style="font-weight:bold;">XtRegisterGrabAction</span>(<span style="font-weight:bold;">3</span>Xt)<span style="font-weight:bold;">sion</span> <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Releas</span>e<span style="font-weight:bold;">t</span>6.6)<span style="font-weight:bold;">sterGrabAction(3Xt)</span>
+		#      <span style="font-weight:bold;">XmClipboardInquireLength(3</span>X)<span style="font-weight:bold;">IX</span> <span style="font-weight:bold;">SystemX</span>V<span style="font-weight:bold;">ClipboardInquireLength(3X)</span>
+
+		my $WHAT = 0;
+		my $TEST = 0;
+		my $TRY = "";
+		do {
 			$TMP = $_;
-			@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/ ;
+			if ($TEST == 0) { 
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*<span [-a-zA-Z0-9=":;]*>System.*V<\/span>.*$/g ;
+				if ((0+@MATCHES) == 2) {
+					$TRY = $MATCHES[0] . $MATCHES[1];
+				}
+			} elsif ($TEST == 1) {	
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([(])<span [-a-zA-Z0-9=":;]*>([1-9a-zA-Z])<\/span>([a-zA-Z1-9]*[)])<span [-a-zA-Z0-9=":;]*>.*<\/span>.*$/g ;
+				if ((0+@MATCHES) == 4 ) {
+					$TRY = $MATCHES[0] . $MATCHES[1] . $MATCHES[2] . $MATCHES[3];
+				}
+			} elsif ($TEST == 2) {
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[a-zA-Z]*<\/span>.*$/g ;
+				if ((0+@MATCHES) == 1) {
+					$TRY = $MATCHES[0];
+				}
+			} elsif ($TEST == 3) {
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z])<\/span>([a-zA-Z1-9]*[)])<span [-a-zA-Z0-9=":;]*>.*System.*V.*<\/span><span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/g ;
+				if ((0+@MATCHES) == 3) {
+					$TRY = $MATCHES[0] + $MATCHES[1];
+				}
+			}
+			$SZ = (0+@MATCHES);
+			# DBG
+			# print STDERR "DBG IS_HEADER - What: SZ=$SZ MATCHES='@MATCHES'.";
+			if ($TRY ne "") {
+				@PS = $TRY =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ;
+			}
+			if (($TRY ne "" && (0+@PS) == 2) && (lc($TRY) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
 
-			if ((0+@PS) == 2 && (lc($PS[0] . $PS[1]) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
-
+				$WHAT = 1;
 				$RES[0] = 1;
 				if ($TITLE ne "") {
 					$RES[1] = $TITLE;
@@ -132,105 +225,49 @@ sub IS_HEADER {
 				} else {
 					$RES[1] = $PS[0] . $PS[1];	
 				}
-				$RES[2] = "Single";
+				$RES[2] = "What/Labeled";
 				# DBG
-				# print STDERR "DBG>> Generic / Plain Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
+				# print STDERR "DBG>> What Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
 			} else {
-				#
-				# Single name(section) header - with label
-				#
-				# <span style="font-weight:bold;">glCopyConvolutionFilter1DEXT(3G)</span>                              <span style="font-weight:bold;">OpenGL</span> <span style="font-weight:bold;">Reference</span>
-
-				$TMP = $_;
-				@PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>OpenGL<\/span>[[:space:]]*<span [-a-zA-Z0-9=":;]*>Reference<\/span>[[:space:]]*$/ ;
-				# @PS = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*.*OpenGL.*Reference.*$/ ;
-				# DBG
-				# $SZ = (0+@PS); 
-				# print STDERR "DBG>> IS_HEADER SZ=$SZ PS='@PS' TITLE='$TITLE' FILE='$FILE'.";
-				if ((0+@PS) == 2) {
-
-					$RES[0] = 1;
-					if ($TITLE ne "") {
-						$RES[1] = $TITLE;
-					} elsif ($CASE eq "LC") {
-						$RES[1] = lc($PS[0]) . $PS[1];
-					} elsif ($CASE eq "UC") {
-						$RES[1] = uc($PS[0]) . $PS[1];
-					} else {
-						$RES[1] = $PS[0] . $PS[1];	
-					}
-					$RES[2] = "Single/Labeled";
-					# DBG
-					# print STDERR "DBG>> Generic / Plain Header check: M[0]='$MATCHES[0]' M[1]='$MATCHES[1]'.";
-
-				} else {
-					#
-					# What!! Header
-					#
-					#      <span style="font-weight:bold;">SSH-PKCS11-HELPE</span>R(8) <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span> <span style="font-weight:bold;">(February</span> <span style="font-weight:bold;">10</span> <span style="font-weight:bold;">20</span>10<span style="font-weight:bold;">H</span>)<span style="font-weight:bold;">PKCS11-HELPER(8)</span>
-
-					$TMP = $_;
-					@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*<span [-a-zA-Z0-9=":;]*>System.*V<\/span>.*$/g ;
-
-					$TMP = "";
-					# DBG
-					# $SZ = (0+@MATCHES);
-					# print STDERR "DBG IS_HEADER - What: SZ=$SZ MATCHES='@MATCHES'.";
-					if ((0+@MATCHES) == 2) {
-						$TMP = $MATCHES[0] . $MATCHES[1];
-						@PS = $TMP =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ;
-					}
-					if (((0+@MATCHES) == 2 && (0+@PS) == 2) && (lc($TMP) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
-
-						$RES[0] = 1;
-						if ($TITLE ne "") {
-							$RES[1] = $TITLE;
-						} elsif ($CASE eq "LC") {
-							$RES[1] = lc($PS[0]) . $PS[1];
-						} elsif ($CASE eq "UC") {
-							$RES[1] = uc($PS[0]) . $PS[1];
-						} else {
-							$RES[1] = $PS[0] . $PS[1];	
-						}
-						$RES[2] = "What/Labeled";
-						# DBG
-						# print STDERR "DBG>> What Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
-					} else {
-						#
-						# IRIX Decorated underscore
-						# <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>                                                        <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>
-
-						$TMP = $_;
-						@MATCHES = $TMP =~ /<span [-a-zA-Z0-9=":;]*>[a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>/g ;
-
-						if ((0+@MATCHES) == 2) {
-
-							@PARTSA = $MATCHES[0] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
-							@PARTSB = $MATCHES[1] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
-
-							#
-							# Double check it is a header ie 2 x nam1_mam2(section)
-							#
-							if ($PARTSA[0] eq $PARTSB[0] && $PARTSA[1] eq $PARTSB[1]) {
-								$RES[0] = 1;
-
-								my @PPS = $PARTSA[1] =~ /([-\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ; 
-								if ($TITLE ne "") {
-									$RES[1] = $TITLE;
-								} elsif ($CASE eq "LC") {
-									$RES[1] = lc($PS[0] . "_" . $PPS[0]) . $PPS[1];
-								} elsif ($CASE eq "UC") {
-									$RES[1] = uc($PS[0] . "_" . $PPS[0]) . $PPS[1];
-								} else {
-									$RES[1] = $PS[0] . $PS[1];	
-								}
-								$RES[2] = "IRIX/Decorated";	
-								# DBG
-								# print STDERR "DBG>> IRIX / Decorated Header check: P[0]='$PARTSA[0]' P[1]='$PARTSA[1]'.";
-							}
-						}
-					}
+				$TEST++;
+				if ($TEST > 3) {
+					$WHAT = 1;
 				}
+			}
+		} while ($WHAT != 1);
+	}
+	if ($RES[0] != 1) { 
+		#
+		# IRIX Decorated underscore
+		# <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>                                                        <span style="font-weight:bold;">cl</span><span style="text-decoration:underline;">_</span><span style="font-weight:bold;">init(1M)</span>
+
+		$TMP = $_;
+		@MATCHES = $TMP =~ /<span [-a-zA-Z0-9=":;]*>[a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]<\/span>/g ;
+
+		if ((0+@MATCHES) == 2) {
+
+			@PARTSA = $MATCHES[0] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
+			@PARTSB = $MATCHES[1] =~ /<span [-a-zA-Z0-9=":;]*>([a-zA-Z]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([-\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>/ ;
+
+			#
+			# Double check it is a header ie 2 x nam1_mam2(section)
+			#
+			if ($PARTSA[0] eq $PARTSB[0] && $PARTSA[1] eq $PARTSB[1]) {
+				$RES[0] = 1;
+
+				my @PPS = $PARTSA[1] =~ /([-\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ; 
+				if ($TITLE ne "") {
+					$RES[1] = $TITLE;
+				} elsif ($CASE eq "LC") {
+					$RES[1] = lc($PS[0] . "_" . $PPS[0]) . $PPS[1];
+				} elsif ($CASE eq "UC") {
+					$RES[1] = uc($PS[0] . "_" . $PPS[0]) . $PPS[1];
+				} else {
+					$RES[1] = $PS[0] . $PS[1];	
+				}
+				$RES[2] = "IRIX/Decorated";	
+				# DBG
+				# print STDERR "DBG>> IRIX / Decorated Header check: P[0]='$PARTSA[0]' P[1]='$PARTSA[1]'.";
 			}
 		}
 	}
@@ -385,7 +422,7 @@ while (<$IN>) {
 			$LINKS += s/([a-zA-Z][a-zA-Z_\.]*)[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$2&$ROUTE[2]$1">$1($2)<\/a>/g;
 			$BC = 0;
 			BUFFER_OR_PRINT_LINE();
-		} elsif ( $CHECK && /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
+		} elsif ( /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
 			#
 			# example
 			# <span style="text-decoration:underline;font-weight:bold;">rsh</span><span style="text-decoration:underline;">_</span><span style="text-decoration:underline;font-weight:bold;">bsd</span>(1C))
@@ -394,7 +431,7 @@ while (<$IN>) {
 			$BC = 0;
 			# print "DBG>> MATCHED: XX_XX(nX)";
 			BUFFER_OR_PRINT_LINE();
-		} elsif ( $CHECK && /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z\.]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
+		} elsif ( /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z\.]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
 			$LINKS += s/(<span [-a-zA-Z0-9=":;]*>)([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$3&$ROUTE[2]$2">$2($3)<\/a>/g;
 			# s/(<span [-a-zA-Z0-9=":;]*>)([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/ !DBG! @1='$1' @2='$2' @3='$3' !! /g
 			$BC = 0;
