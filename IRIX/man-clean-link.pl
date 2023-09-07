@@ -196,10 +196,10 @@ sub IS_HEADER {
 					$TRY = $MATCHES[0] . $MATCHES[1];
 				}
 			} elsif ($TEST == 1) {
-				# General (Cs|Dt|Xt|Xm)name(sec)
+				# General (cs|Dt|ftn|flt|glut|Sg|Xt|Xm)name(sec)
                                 $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
                                 $TMP =~ s/<\/span>//g ; 
-                                @MATCHES = $TMP =~ /^[[:space:]]*(iCs|DtXt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
+                                @MATCHES = $TMP =~ /^[[:space:]]*(cs|Dt|Xt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
 				if ((0+@MATCHES) == 2 ) {
 					$TRY = $MATCHES[0] . $MATCHES[1];
 				}
