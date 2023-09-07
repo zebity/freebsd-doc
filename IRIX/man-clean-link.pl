@@ -35,8 +35,9 @@ my $DISCARD = 0;
 my $HINT = "V";
 my $CASE = "";
 my $FILE = "";
-my $HOME = "http://help.graphica.com.au/man/irix-6.5.30/";
-my @ROUTE = ( "man?", "section=", "page=" );
+my $HOME = "http://help.graphica.com.au/irix-6.5.30/";
+# my @ROUTE = ( "man?", "section=", "page=", "&" );
+my @ROUTE = ( "man/", "", "", "/" );
 my @HDRRES = ();
 
 my @BUFFER = ();
@@ -177,7 +178,10 @@ sub IS_HEADER {
 		#
 		#      <span style="font-weight:bold;">SSH-PKCS11-HELPE</span>R(8) <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span> <span style="font-weight:bold;">(February</span> <span style="font-weight:bold;">10</span> <span style="font-weight:bold;">20</span>10<span style="font-weight:bold;">H</span>)<span style="font-weight:bold;">PKCS11-HELPER(8)</span>
 		#      <span style="font-weight:bold;">glutChangeToMenuEntry(3GLUT)GLUT</span> <span style="font-weight:bold;">(3.6</span>)<span style="font-weight:bold;">lutChangeToMenuEntry(3GLUT)</span>
+		#      <span style="font-weight:bold;">glutExtensionSupported(3GLUT</span>)<span style="font-weight:bold;">LUT</span> <span style="font-weight:bold;">(3 </span>6)<span style="font-weight:bold;">utExtensionSupported(3GLUT)</span>
 		#      <span style="font-weight:bold;">XtRegisterGrabAction</span>(<span style="font-weight:bold;">3</span>Xt)<span style="font-weight:bold;">sion</span> <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Releas</span>e<span style="font-weight:bold;">t</span>6.6)<span style="font-weight:bold;">sterGrabAction(3Xt)</span>
+		#      <span style="font-weight:bold;">XtGetSubresources(3X</span>t<span style="font-weight:bold;">)Version</span> <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Release</span> <span style="font-weight:bold;">6</span>.6)<span style="font-weight:bold;">etSubresources(3Xt)</span>
+		#      <span style="font-weight:bold;">XtGetSelectionParame</span>t<span style="font-weight:bold;">e</span>rs(3Xt) <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Re</span>lease<span style="font-weight:bold;">S</span>6.6)<span style="font-weight:bold;">tionParameters(3Xt)</span>
 		#      <span style="font-weight:bold;">XmClipboardInquireLength(3</span>X)<span style="font-weight:bold;">IX</span> <span style="font-weight:bold;">SystemX</span>V<span style="font-weight:bold;">ClipboardInquireLength(3X)</span>
 
 		my $WHAT = 0;
@@ -186,29 +190,58 @@ sub IS_HEADER {
 		do {
 			$TMP = $_;
 			if ($TEST == 0) { 
+				#SSH...</span>R(8) <span...>
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*<span [-a-zA-Z0-9=":;]*>System.*V<\/span>.*$/g ;
 				if ((0+@MATCHES) == 2) {
 					$TRY = $MATCHES[0] . $MATCHES[1];
 				}
-			} elsif ($TEST == 1) {	
-				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([(])<span [-a-zA-Z0-9=":;]*>([1-9a-zA-Z])<\/span>([a-zA-Z1-9]*[)])<span [-a-zA-Z0-9=":;]*>.*<\/span>.*$/g ;
+			} elsif ($TEST == 1) {
+				# General (Xt|Xm)name(sec)
+                                $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
+                                $TMP =~ s/<\/span>//g ; 
+                                @MATCHES = $TMP =~ /^[[:space:]]*(Xt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
+				if ((0+@MATCHES) == 2 ) {
+					$TRY = $MATCHES[0] . $MATCHES[1];
+				}
+				$SZ = (0+@MATCHES);
+				# DBG
+				# print STDERR "DBG>> IS_HEADER - What (Xt|Xm): TMP='$TMP' SZ='$SZ' MATCHES='@MATCHES'.";
+			} elsif ($TEST == 2) {
+				# XtRegister
+				$TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
+				$TMP =~ s/<\span>//g ; 
+				@MATCHES = $TMP =~ /^[[:space:]]*(Xt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
 				if ((0+@MATCHES) == 4 ) {
 					$TRY = $MATCHES[0] . $MATCHES[1] . $MATCHES[2] . $MATCHES[3];
 				}
-			} elsif ($TEST == 2) {
-				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[a-zA-Z]*<\/span>.*$/g ;
-				if ((0+@MATCHES) == 1) {
-					$TRY = $MATCHES[0];
-				}
 			} elsif ($TEST == 3) {
+				# XtGetSub...R
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*)<\/span>([a-zA-Z1-9]*)<span [-a-zA-Z0-9=":;]*>([)])[A-Za-z]*<\span>[[:space:]]<span [-a-zA-Z0-9=":;]*>.*<\/span>[[:space:]]*$/g ;
+				if ((0+@MATCHES) == 3 ) {
+					$TRY = $MATCHES[0] . $MATCHES[1] . $MATCHES[2];
+				}
+			} elsif ($TEST == 4) {
+				# XmC... (3</span>X)
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z])<\/span>([a-zA-Z1-9]*[)])<span [-a-zA-Z0-9=":;]*>.*System.*V.*<\/span><span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/g ;
 				if ((0+@MATCHES) == 3) {
 					$TRY = $MATCHES[0] + $MATCHES[1];
 				}
+			} elsif ($TEST == 5) {
+				#(3GLUT)GLUT
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[a-zA-Z]*<\/span>.*$/g ;
+				if ((0+@MATCHES) == 1) {
+					$TRY = $MATCHES[0];
+				}
+			} elsif ($TEST == 6) {
+				# (3GLUT</span>)
+				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*)<\/span>([)])<span [-a-zA-Z0-9=":;]*>.*<\/span>[[:space:]]*$/g ;
+				if ((0+@MATCHES) == 2) {
+					$TRY = $MATCHES[0];
+				}
 			}
 			$SZ = (0+@MATCHES);
 			# DBG
-			# print STDERR "DBG IS_HEADER - What: SZ=$SZ MATCHES='@MATCHES'.";
+			# print STDERR "DBG>> IS_HEADER - What: SZ=$SZ MATCHES='@MATCHES'.";
 			if ($TRY ne "") {
 				@PS = $TRY =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ;
 			}
@@ -230,7 +263,7 @@ sub IS_HEADER {
 				# print STDERR "DBG>> What Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
 			} else {
 				$TEST++;
-				if ($TEST > 3) {
+				if ($TEST > 6) {
 					$WHAT = 1;
 				}
 			}
@@ -419,7 +452,7 @@ while (<$IN>) {
 			print "<!-- Rendered by irix-cat2html.sh: IS: '$IS' HEADERS: $HEADERS FOOTERS: $FOOTERS EMPTY: $EMPTY LINKS: $LINKS -->\n";
 			print;
 		} elsif ( /[a-zA-Z][a-zA-Z_\.]*[(][1-9][a-zA-Z]*[)][^<]/ ) {
-			$LINKS += s/([a-zA-Z][a-zA-Z_\.]*)[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$2&$ROUTE[2]$1">$1($2)<\/a>/g;
+			$LINKS += s/([a-zA-Z][a-zA-Z_\.]*)[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$2$ROUTE[3]$ROUTE[2]$1">$1($2)<\/a>/g;
 			$BC = 0;
 			BUFFER_OR_PRINT_LINE();
 		} elsif ( /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
@@ -427,12 +460,12 @@ while (<$IN>) {
 			# example
 			# <span style="text-decoration:underline;font-weight:bold;">rsh</span><span style="text-decoration:underline;">_</span><span style="text-decoration:underline;font-weight:bold;">bsd</span>(1C))
 			#
-			$LINKS += s/<span [-a-zA-Z0-9=":;]*>([a-zA-Z][a-zA-Z\.]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$3&$ROUTE[2]$1_$2">$1_$2($3)<\/a>/g;
+			$LINKS += s/<span [-a-zA-Z0-9=":;]*>([a-zA-Z][a-zA-Z\.]*)<\/span><span [-a-zA-Z0-9=":;]*>_<\/span><span [-a-zA-Z0-9=":;]*>([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$3$ROUTE[3]$ROUTE[2]$1_$2">$1_$2($3)<\/a>/g;
 			$BC = 0;
 			# print "DBG>> MATCHED: XX_XX(nX)";
 			BUFFER_OR_PRINT_LINE();
 		} elsif ( /<span [-a-zA-Z0-9=":;]*>[a-zA-Z][a-zA-Z\.]*<\/span>[(][1-9][a-zA-Z]*[)]/ ) {
-			$LINKS += s/(<span [-a-zA-Z0-9=":;]*>)([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$3&$ROUTE[2]$2">$2($3)<\/a>/g;
+			$LINKS += s/(<span [-a-zA-Z0-9=":;]*>)([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/<a href="$HOME$ROUTE[0]$ROUTE[1]$3$ROUTE[3]$ROUTE[2]$2">$2($3)<\/a>/g;
 			# s/(<span [-a-zA-Z0-9=":;]*>)([a-zA-Z][a-zA-Z\.]*)<\/span>[(]([1-9][a-zA-Z]*)[)]/ !DBG! @1='$1' @2='$2' @3='$3' !! /g
 			$BC = 0;
 			# print "DBG>> MATCHED: XX(nX)";
