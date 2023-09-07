@@ -31,6 +31,8 @@ my $CHECK = 0;
 my $TITLE = "";
 my $HEADER = 1;
 my $FOOTER = 1;
+my $HEADER_SEARCH = 1;
+my $FOOTER_SEARCH = 1;
 my $DISCARD = 0;
 my $HINT = "V";
 my $CASE = "";
@@ -183,6 +185,12 @@ sub IS_HEADER {
 		#      <span style="font-weight:bold;">XtGetSubresources(3X</span>t<span style="font-weight:bold;">)Version</span> <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Release</span> <span style="font-weight:bold;">6</span>.6)<span style="font-weight:bold;">etSubresources(3Xt)</span>
 		#      <span style="font-weight:bold;">XtGetSelectionParame</span>t<span style="font-weight:bold;">e</span>rs(3Xt) <span style="font-weight:bold;">11</span> <span style="font-weight:bold;">(Re</span>lease<span style="font-weight:bold;">S</span>6.6)<span style="font-weight:bold;">tionParameters(3Xt)</span>
 		#      <span style="font-weight:bold;">XmClipboardInquireLength(3</span>X)<span style="font-weight:bold;">IX</span> <span style="font-weight:bold;">SystemX</span>V<span style="font-weight:bold;">ClipboardInquireLength(3X)</span>
+		#
+		# 3 Variants:
+		#  1 - NAME(SECTION)    NAME(SECTION)
+		#  2 - NAMEA(SECTION)   NAMEB(SECTION) - Treat as case 3
+                #  3 - NAME(SECTION)
+		#
 
 		my $WHAT = 0;
 		my $TEST = 0;
@@ -199,7 +207,7 @@ sub IS_HEADER {
 				# General (cs|Dt|ftn|flt|glut|Sg|Xt|Xm)name(sec)
                                 $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
                                 $TMP =~ s/<\/span>//g ; 
-                                @MATCHES = $TMP =~ /^[[:space:]]*(cs|Dt|Xt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
+                                @MATCHES = $TMP =~ /^[[:space:]]*(cs|Dt|ftn|flt|glut|Xt|Xm)([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
 				if ((0+@MATCHES) == 2 ) {
 					$TRY = $MATCHES[0] . $MATCHES[1];
 				}
