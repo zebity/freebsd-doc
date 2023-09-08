@@ -34,7 +34,9 @@ my $FOOTER = 1;
 my $HEADER_SEARCH = 1;
 my $FOOTER_SEARCH = 1;
 my $DISCARD = 0;
+my $STOPAT = 120;
 my $HINT = "V";
+my $CATSEC = "";
 my $CASE = "";
 my $FILE = "";
 my $HOME = "http://help.graphica.com.au/irix-6.5.30/";
@@ -176,6 +178,68 @@ sub IS_HEADER {
 	}
 	if ($RES[0] != 1) {
 		#
+		# COSMO3D
+		#
+		# <span style="font-weight:bold;">COSMO3D</span> <span style="font-weight:bold;">REFERENCE</span> <span style="font-weight:bold;">MANUAL</span>
+		#
+		# Variants:
+		#  1 - COSMO3D REFERENCE MANUAL
+		#
+
+		my $WHAT = 0;
+		my $TEST = 0;
+		my $TRY = "";
+		do {
+			$TMP = $_;
+			if ($TEST == 0) {
+				# COSMO Case 1 & 2
+				# clear formating
+                                $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
+                                $TMP =~ s/<\/span>//g ; 
+                                @MATCHES = $TMP =~ /^[[:space:]]*COSMO3D.*REFERENCE.*MANUAL.*$/g ;
+				if ((0+@MATCHES) == 1 ) {
+					if ($CATSEC ne "") {
+						$TRY = $FILE . "($CATSEC)";
+					} else {
+						$TRY = $FILE . "(U1)";
+					}
+				}
+				$SZ = (0+@MATCHES);
+				# DBG
+				# print STDERR "DBG>> IS_HEADER - COSMO3D : TMP='$TMP' SZ='$SZ' MATCHES='@MATCHES'.";
+			}
+			$SZ = (0+@MATCHES);
+			# DBG
+			# print STDERR "DBG>> IS_HEADER - COSMO: SZ=$SZ MATCHES='@MATCHES'.";
+			if ($TRY ne "") {
+				@PS = $TRY =~ /([a-zA-Z][-_\.a-zA-Z0-9]*)([(][1-9a-zA-Z][a-zA-Z1-9]*[)])/ ;
+			}
+			if (($TRY ne "" && (0+@PS) == 2) && (lc($TRY) eq lc($TITLE) || lc($PS[0]) eq lc($FILE))) {
+
+				$WHAT = 1;
+				$RES[0] = 1;
+				if ($TITLE ne "") {
+					$RES[1] = $TITLE;
+				} elsif ($CASE eq "LC") {
+					$RES[1] = lc($PS[0]) . $PS[1];
+				} elsif ($CASE eq "UC") {
+					$RES[1] = uc($PS[0]) . $PS[1];
+				} else {
+					$RES[1] = $PS[0] . $PS[1];	
+				}
+				$RES[2] = "COSMO:$TEST";
+				# DBG
+				# print STDERR "DBG>> COSMO Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
+			} else {
+				$TEST++;
+				if ($TEST > 0) {
+					$WHAT = 1;
+				}
+			}
+		} while ($WHAT != 1);
+	}
+	if ($RES[0] != 1) {
+		#
 		# What!! Header
 		#
 		#      <span style="font-weight:bold;">SSH-PKCS11-HELPE</span>R(8) <span style="font-weight:bold;">System</span> <span style="font-weight:bold;">V</span> <span style="font-weight:bold;">(February</span> <span style="font-weight:bold;">10</span> <span style="font-weight:bold;">20</span>10<span style="font-weight:bold;">H</span>)<span style="font-weight:bold;">PKCS11-HELPER(8)</span>
@@ -197,13 +261,35 @@ sub IS_HEADER {
 		my $TRY = "";
 		do {
 			$TMP = $_;
-			if ($TEST == 0) { 
+			if ($TEST == 0) {
+				# General What Case 1 & 2
+				# clear formating
+                                $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
+                                $TMP =~ s/<\/span>//g ; 
+                                @MATCHES = $TMP =~ /^[[:space:]]*([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*$/g ;
+				if ((0+@MATCHES) == 2 ) {
+					if (lc($MATCHES[0]) eq lc($MATCHES[1])) {
+						# What case 1 
+						$TRY = $MATCHES[0];
+					} else {
+						$TRY = $MATCHES[0];
+					}
+				} else {
+                                	@MATCHES = $TMP =~ /^[[:space:]]*([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)]).*$/g ;
+					if ((0+@MATCHES) == 1) {
+						$TRY = $MATCHES[0];
+					}
+				}
+				$SZ = (0+@MATCHES);
+				# DBG
+				# print STDERR "DBG>> IS_HEADER - What 1-3: TMP='$TMP' SZ='$SZ' MATCHES='@MATCHES'.";
+			} elsif ($TEST == 1) { 
 				#SSH...</span>R(8) <span...>
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*)<\/span>([-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[[:space:]]*<span [-a-zA-Z0-9=":;]*>System.*V<\/span>.*$/g ;
 				if ((0+@MATCHES) == 2) {
 					$TRY = $MATCHES[0] . $MATCHES[1];
 				}
-			} elsif ($TEST == 1) {
+			} elsif ($TEST == 2) {
 				# General (cs|Dt|ftn|flt|glut|Sg|Xt|Xm)name(sec)
                                 $TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
                                 $TMP =~ s/<\/span>//g ; 
@@ -214,7 +300,7 @@ sub IS_HEADER {
 				$SZ = (0+@MATCHES);
 				# DBG
 				# print STDERR "DBG>> IS_HEADER - What (Xt|Xm): TMP='$TMP' SZ='$SZ' MATCHES='@MATCHES'.";
-			} elsif ($TEST == 2) {
+			} elsif ($TEST == 3) {
 				# XtRegister
 				$TMP =~ s/<span [-a-zA-Z0-9=":;]*>//g ;
 				$TMP =~ s/<\span>//g ; 
@@ -222,25 +308,25 @@ sub IS_HEADER {
 				if ((0+@MATCHES) == 4 ) {
 					$TRY = $MATCHES[0] . $MATCHES[1] . $MATCHES[2] . $MATCHES[3];
 				}
-			} elsif ($TEST == 3) {
+			} elsif ($TEST == 4) {
 				# XtGetSub...R
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*)<\/span>([a-zA-Z1-9]*)<span [-a-zA-Z0-9=":;]*>([)])[A-Za-z]*<\span>[[:space:]]<span [-a-zA-Z0-9=":;]*>.*<\/span>[[:space:]]*$/g ;
 				if ((0+@MATCHES) == 3 ) {
 					$TRY = $MATCHES[0] . $MATCHES[1] . $MATCHES[2];
 				}
-			} elsif ($TEST == 4) {
+			} elsif ($TEST == 5) {
 				# XmC... (3</span>X)
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z])<\/span>([a-zA-Z1-9]*[)])<span [-a-zA-Z0-9=":;]*>.*System.*V.*<\/span><span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])<\/span>[[:space:]]*$/g ;
 				if ((0+@MATCHES) == 3) {
 					$TRY = $MATCHES[0] + $MATCHES[1];
 				}
-			} elsif ($TEST == 5) {
+			} elsif ($TEST == 6) {
 				#(3GLUT)GLUT
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*[)])[a-zA-Z]*<\/span>.*$/g ;
 				if ((0+@MATCHES) == 1) {
 					$TRY = $MATCHES[0];
 				}
-			} elsif ($TEST == 6) {
+			} elsif ($TEST == 7) {
 				# (3GLUT</span>)
 				@MATCHES = $TMP =~ /^[[:space:]]*<span [-a-zA-Z0-9=":;]*>([a-zA-Z][-_\.a-zA-Z0-9]*[(][1-9a-zA-Z][a-zA-Z1-9]*)<\/span>([)])<span [-a-zA-Z0-9=":;]*>.*<\/span>[[:space:]]*$/g ;
 				if ((0+@MATCHES) == 2) {
@@ -266,12 +352,12 @@ sub IS_HEADER {
 				} else {
 					$RES[1] = $PS[0] . $PS[1];	
 				}
-				$RES[2] = "What/Labeled";
+				$RES[2] = "What:$TEST";
 				# DBG
 				# print STDERR "DBG>> What Header check: PS[0]='$PS[0]' PS[1]='$PS[1]'.";
 			} else {
 				$TEST++;
-				if ($TEST > 6) {
+				if ($TEST > 7) {
 					$WHAT = 1;
 				}
 			}
@@ -372,7 +458,9 @@ my $IN = *STDIN;
 my $ARG = shift;
 
 while ($ARG) {
-	if ($ARG eq "-c") {
+	if ($ARG eq "-b") {
+		$SPACE = shift;
+	} elsif ($ARG eq "-c") {
 		$HINT = shift;
 	} elsif ($ARG eq "-d") {
 		$DISCARD = 1;
@@ -383,13 +471,13 @@ while ($ARG) {
 	} elsif ($ARG eq "-r") {
 		@ROUTE = shift;
 	} elsif ($ARG eq "-s") {
-		$SPACE = shift;
+		$CATSEC = shift;
 	} elsif ($ARG eq "-t") {
 		$TITLE = shift;
 	} elsif ($ARG eq "-u") {
 		$HOME = shift;
 	} else {
-		print STDERR "Usage: $ARGV[0] [-c CASE-HINT] [-d == DISCARD] [-f FOOTER=(0|1|2) ] [-h HEADER=(0|1|2)] [-r ROUTE=('base', 'section', 'page')] [-s SPACE] [-t TITLE] [-u URL-HOME]";
+		print STDERR "Usage: $ARGV[0] [-b BLANKS] [-c CASE-HINT] [-d == DISCARD] [-f FOOTER=(0|1|2) ] [-h HEADER=(0|1|2)] [-r ROUTE=('base', 'section', 'page')] [-s CATSEC] [-t TITLE] [-u URL-HOME]";
 	}
 	$ARG = shift;
 }
@@ -408,14 +496,33 @@ if ($HINT ne "V") {
 	# print STDERR "DBG>> Setting HINT='$HINT' FILE='$FILE' CASE='$CASE'";
 }
 
+if ($CATSEC ne "") {
+	my @MATCHES = ();
+	@MATCHES = $CATSEC =~ /[\/]*cat(.*)[\/]*/g ;
+	if ((0+@MATCHES) == 1) {
+		$CATSEC = $MATCHES[0];
+	} else {
+		$CATSEC = "U1";
+	}
+	#
+	# DBG
+	# print STDERR "DBG>> CATSEC='$CATSEC'."
+}
+
 while (<$IN>) {
 
 	$LINENO++;
+	if ($LINENO > $STOPAT && $HEADERS == 0) {
+		$HEADER_SEARCH = 0;
+		$FOOTER_SEARCH = 0;
+	} 
 
 	if ($PRE == 1) {
 
-		@HDRRES = IS_HEADER();
-		if ($HDRRES[0] == 1) {
+		if ($HEADER_SEARCH == 1) {
+			@HDRRES = IS_HEADER();
+		}
+		if ($HEADER_SEARCH == 1 && $HDRRES[0] == 1) {
 			if ($TITLE eq "") {
 			  $J++;
 			  $TITLE = $HDRRES[1];
@@ -434,7 +541,7 @@ while (<$IN>) {
 			if ($BC < $SPACE) {
 				BUFFER_OR_PRINT_LINE();
 			}
-		} elsif (IS_FOOTER() == 1) {
+		} elsif ($FOOTER_SEARCH == 1 && IS_FOOTER() == 1) {
 			$LAST = $_;
 			if ($FOOTER > 1 && $DISCARD == 0) {
 				BUFFER_OR_PRINT_LINE();
@@ -445,9 +552,9 @@ while (<$IN>) {
 			if ($TITLE eq "") {
 				$J = 0;
 				if ($FILE eq "") {
-					$FILE = "UNTITLED." . $$ . "(U1)";
+					$FILE = "UNTITLED." . $$ . "($CATSEC)";
 				} else {
-					$FILE = $FILE . "(U1)";
+					$FILE = $FILE . "($CATSEC)";
 				}
 				$TITLE = $FILE;
 				$J++;

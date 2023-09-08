@@ -20,14 +20,15 @@ XSLTPROC="/usr/local/bin/xsltproc"
 PERL="/usr/local/bin/perl"
 RM="/bin/rm"
 
-VALOPTS="c:d:p:u:"
-USAGE="Usage - ${0} -d dir -p page [-u URL-HOME] [-c HINT]"
+VALOPTS="c:d:p:s:u:"
+USAGE="Usage - ${0} -d dir -p page [-u URL-HOME] [-c HINT] [-s CATSEC]"
 
 EXPARG=2
 DIR=
 PAGE=
 URL=
 HINT=
+CATSEC=
 
 # echo "DBG>> ${0} - \$#='$#'"
 
@@ -43,6 +44,7 @@ do
 	c)	HINT="-c ${OPTARG}"; shift ;;
 	d)	DIR=${OPTARG}; shift ;;
 	p)	PAGE=${OPTARG}; shift ;;
+	s)	CATSEC="-s ${OPTARG}"; shift ;;
 	u)	URL="-u ${OPTARG}"; shift ;;
 	:)	echo "${USAGE}" 1>&2
 		exit 2;;
@@ -71,7 +73,7 @@ fi
 
 TMP=/tmp/NAMTACXIRI.${PAGE}.$$
 
-${ZCAT} ${FILE} | ${UL} | ${AHA} > ${TMP} && ${XSLTPROC} -o - style-ansi2.xslt ${TMP} | ${PERL} man-clean-link.pl ${URL} ${HINT}
+${ZCAT} ${FILE} | ${UL} | ${AHA} > ${TMP} && ${XSLTPROC} -o - style-ansi2.xslt ${TMP} | ${PERL} man-clean-link.pl ${URL} ${HINT} ${CATSEC}
 
 RES=$?
 if [ ${RES} -eq 0 ];then

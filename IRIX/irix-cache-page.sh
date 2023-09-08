@@ -28,6 +28,7 @@ DIR=
 PATH=
 PAGE=
 FILE=
+CATSECTION=
 URL=
 HTML=html
 INDEX=index
@@ -46,6 +47,7 @@ MKDIR="/bin/mkdir"
 MV="/bin/mv"
 LN="/bin/ln"
 RM="/bin/rm"
+CUT="/usr/bin/cut"
 
 # echo "DBG>> ${0} - \$#='$#'"
 
@@ -77,6 +79,9 @@ if [ -f "${PATH}" ]; then
 	FILE=`${BASENAME} ${PATH}`
 	PATHDIR=${PATH%${FILE}}
 	PAGE=${FILE%[.][zZ]}
+	MASK=${PATHDIR%/cat*/*}
+	CATSECTION=${PATHDIR#${MASK}}
+	CATSECTION=`echo ${CATSECTION} | ${CUT} -f2 -d/`
 else
 	echo "Error - ${0} - cannot find: '$PATH'" 1>&2
 	exit 1
@@ -87,7 +92,7 @@ fi
 
 TMP="${TMP}${PAGE}.html"
 
-${CAT2HTML} -d ${PATHDIR} -p ${PAGE} -c ${PAGE} > ${TMP}
+${CAT2HTML} -d ${PATHDIR} -s ${CATSECTION} -p ${PAGE} -c ${PAGE} > ${TMP}
 if [ $? -eq 0 ]; then
 	TITLE=`${GREP} '<title>.*</title>' ${TMP}`
 	if [ "${TITLE}" == "" ]; then
