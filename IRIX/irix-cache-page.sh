@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 #
 # @what - Add irix man page to html cache
 #           for a .z file
@@ -29,8 +29,8 @@
 # (C)opyright 2023 - All rights reserved
 #
 
-USAGE="Usage - ${0} -d cache-dir -z path-to.(zZ|gz|sec)"
-VALOPTS="c:d:m:p:s:t:z:"
+USAGE="Usage - ${0} -d cache-dir -z path-to.(zZ|gz|sec) [-l (off|only|on) - links]"
+VALOPTS="d:l:z:"
 
 EXPARG=2
 DIR=
@@ -50,6 +50,7 @@ TITLE=
 SECTION=
 KEY=
 ALIAS=
+ADDLINKS="on"
 TMP="lmth2tac.$$."
 
 BASENAME="/usr/bin/basename"
@@ -67,20 +68,28 @@ MAN2HTML="/usr/local/bin/man2html"
 SED="/usr/bin/sed"
 ENV="/usr/bin/env"
 SH="/bin/sh"
+TEST="/bin/test"
+FIND="/usr/bin/find"
+STAT="/usr/bin/stat"
+
+PATH=${ENV_PATH} ; export PATH
+# path=${ENV_PATH} ; export path
 
 # DBG
-# echo "DBG>> ${0} - \$#='$#'"
+# echo `${ENV}`
+# echo `which test`
 
+# DBG
+#echo "DBG>> ${0} - \$#='$#'"
 
-if [ $# -ne 4 ]; then
-	echo "${USAGE}" 1>&2
-	exit 1
-fi
+# DBG
+# echo "DBG>> PATH='${PATH}'."
 
 while getopts ${VALOPTS} a
 do
 	case $a in
 	d)	DIR=${OPTARG}; shift ;;
+	l)	ADDLINKS=${OPTARG}; shift ;;
 	z)	PATH=${OPTARG}; shift ;;
 	:)	echo "${USAGE}" 1>&2
 		exit 2;;
@@ -100,6 +109,13 @@ CATSEC=`echo ${CATSEC} | ${CUT} -f2 -d/`
 MASK=${PATHDIR%/man*/*}
 MANSEC=${PATHDIR#${MASK}}
 MANSEC=`echo ${MANSEC} | ${CUT} -f2 -d/`
+
+if [ "${DIR}" != "" ] && [ "${PATH}" != "" ]; then
+	true
+else
+	echo "${USAGE}" 1>&2
+	exit 1
+fi
 
 if [ ! -d "${DIR}" ]; then
 	${MKDIR} -p "${DIR}/${HTML}"
@@ -121,7 +137,10 @@ TMP="${TMP}${PAGE}.html"
 
 case "${TYPE}" in
 	Z)	;&
-	z)	${CAT2HTML} -d ${PATHDIR} -s ${CATSEC} -p ${PAGE} -c ${PAGE} > ${TMP}
+	z)	if [ "${CATSEC}" = "" ]; then
+			CATSEC=${MANSEC}
+		fi
+		${CAT2HTML} -d ${PATHDIR} -s ${CATSEC} -p ${PAGE} -c ${PAGE} > ${TMP}
 		;;
 	gz)	${GZCAT} ${PATH} > ${TMP}
 		;;
@@ -175,11 +194,47 @@ if [ $? -eq 0 ]; then
 		${MKDIR} -p ${LINK_DIR}
 	fi
 
-	${MV} ${TMP} ${HTML_DIR}/${KEY}.html
-	( cd ${LINK_DIR} && ${LN} -sf ../../../${HTML}/${MANDIR}/${SECTION}/${KEY}.html ${KEY} )
-	#
-	# DBG
-	echo "Info - ${0} - Added: '${HTML_DIR}/${KEY}.html'."
+	if [ "${ADDLINKS}" != "only" ]; then
+		${MV} ${TMP} ${HTML_DIR}/${KEY}.html
+		( cd ${LINK_DIR} && ${LN} -sf ../../../${HTML}/${MANDIR}/${SECTION}/${KEY}.html ${KEY} )
+		#
+		# DBG
+		echo "Info - ${0} - Added[${SECTION}]: '${HTML_DIR}/${KEY}.html'."
+	fi
+
+	if [ "${ADDLINKS}" != "off" ]; then
+		# PATTERN="\\(.*\\)-> ${KEY}\.${TYPE}"
+		PATTERN=".*\-> ${KEY}\.${TYPE}"
+		# DBG
+		# echo "DBG>> ${0} - PATTERN='${PATTERN}'."
+		# find /usr/local/www/bsddoc/man/IRIX-6.5.30/man/catman/u_man/cat1/ -type l -exec stat -f "%N: %HT%SY" {} \; | grep '\-> sh.z' | cut -f1 -d" "
+		for LINKSTAT in `${FIND} ${PATHDIR}  -type l -exec ${STAT} -f "%N: %HT%SY" {} \; | ${EGREP} "${PATTERN}" | ${CUT} -f1 -d" "`
+		do
+			# ${LINKSTAT}=/usr/local/www/bsddoc/man/IRIX-6.5.30/man/catman/u_man/cat1/ksh.z: Symbolic Link -> sh.z
+
+			# DBG
+			# echo "DBG>> LINKSTAT='${LINKSTAT}'."
+
+			if [ "${LINKSTAT}" = "->" ]; then
+				true;
+			elif [ "${LINKSTAT}" = "${FILE}" ]; then
+				true
+			else
+				ALIAS=${ALIAS%:}
+				ALIAS=`${BASENAME} ${LINKSTAT}`
+				ALIAS=${ALIAS%.*}
+				# DBG
+				# echo "DBG>> ${0} - ALIAS='${ALIAS}' -> FILE='${FILE}'."
+
+				# DBG
+				# echo "( cd ${LINK_DIR} && ${LN} -sf ${KEY} ${ALIAS} )"
+				( cd ${LINK_DIR} && ${LN} -sf ${KEY} ${ALIAS} )
+
+				echo "Info - ${0} - Added Alias[${SECTION}]: '${ALIAS}' -> '${KEY}'."
+			fi
+		
+		done
+	fi
 fi 
 
 if [ -e "${TMP}" ]; then

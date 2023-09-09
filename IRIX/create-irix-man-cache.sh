@@ -4,13 +4,16 @@
 DIR="/usr/local/www/bsddoc/man/IRIX-6.5.30/"
 CACHE="./irix-6.5.30"
 
+ENV_PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin"
+
 gz_on=0
 z_on=0
 Z_on=0
 man_on=0
+ADDLINKS=
 
-USAGE="Usage ${0} -d MANDIR -c CACHE [-z == process .z] [-Z == process .Z] [-g == process .gz] [-m == process man roff]"
-VALOPTS="d:c:zZgm"
+USAGE="Usage ${0} -d MANDIR -c CACHE [-z == process .z] [-Z == process .Z] [-g == process .gz] [-m == process man roff] [-l == (off|only|on)]"
+VALOPTS="c:d:gl:mzZ"
 
 while getopts ${VALOPTS} a
 do
@@ -19,6 +22,7 @@ do
         d)      DIR=${OPTARG}; shift ;;
         g)      gz_on=1
 		;;
+        l)      ADDLINKS="-l ${OPTARG}"; shift ;;
         m)      man_on=1
 		;;
         z)      z_on=1
@@ -36,6 +40,8 @@ done
 BASENAME=/usr/bin/basename
 CUT=/usr/bin/cut
 CACHE_PAGE="./irix-cache-page.sh"
+SH=/bin/sh
+ENV=/usr/bin/env
 
 # DBG
 echo "Info - ${0} gz=${gz_on} z=${z_on} Z=${Z_on} man=${man_on}."
@@ -61,19 +67,19 @@ do
 
 	case ${SUFFIX} in
 		z)	if [ "${z_on}" -eq 1 ]; then
-				${CACHE_PAGE} -d ${CACHE} -z ${PATH}
+				${ENV} "PATH=${ENV_PATH}" ${SH} ${CACHE_PAGE} -d ${CACHE} -z ${PATH} ${ADDLINKS}
 			fi
 			;; 
 		Z)	if [ "${Z_on}" -eq 1 ]; then
-				${CACHE_PAGE} -d ${CACHE} -z ${PATH}
+				${ENV} "PATH=${ENV_PATH}" ${SH} ${CACHE_PAGE} -d ${CACHE} -z ${PATH} ${ADDLINKS}
 			fi
 			;; 
 		gz)	if [ "${gz_on}" -eq 1 ]; then
-				${CACHE_PAGE} -d ${CACHE} -z ${PATH}
+				${ENV} "PATH=${ENV_PATH}" ${SH} ${CACHE_PAGE} -d ${CACHE} -z ${PATH} ${ADDLINKS}
 			fi
 			;;
 		*)	if [ "${man_on}" -eq 1 ]; then
-				${CACHE_PAGE} -d ${CACHE} -z ${PATH}
+				${ENV} "PATH=${ENV_PATH}" ${SH} ${CACHE_PAGE} -d ${CACHE} -z ${PATH} ${ADDLINKS}
 			fi
 			;;
 	esac
