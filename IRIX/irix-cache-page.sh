@@ -44,7 +44,7 @@ URL="/irix-6.5.30/man/\${section}\${subsection}/\${title}"
 ENV_PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin"
 HTML=html
 INDEX=index
-MAN=man
+MANDIR=man
 PATHDIR=
 TITLE=
 SECTION=
@@ -165,8 +165,8 @@ if [ $? -eq 0 ]; then
 	# DBG
 	# echo "DBG>> ${0} TITLE='${TITLE}' KEY='${KEY}' SECTION='${SECTION}'"
 
-	HTML_DIR="${DIR}/${HTML}/${MAN}/${SECTION}"
-	LINK_DIR="${DIR}/${INDEX}/${MAN}/${SECTION}"
+	HTML_DIR="${DIR}/${HTML}/${MANDIR}/${SECTION}"
+	LINK_DIR="${DIR}/${INDEX}/${MANDIR}/${SECTION}"
 
 	if [ ! -d "${HTML_DIR}" ]; then
 		${MKDIR} -p ${HTML_DIR}
@@ -176,7 +176,7 @@ if [ $? -eq 0 ]; then
 	fi
 
 	${MV} ${TMP} ${HTML_DIR}/${KEY}.html
-	( cd ${LINK_DIR} && ${LN} -sf ../../../${HTML}/${MAN}/${SECTION}/${KEY}.html ${KEY} )
+	( cd ${LINK_DIR} && ${LN} -sf ../../../${HTML}/${MANDIR}/${SECTION}/${KEY}.html ${KEY} )
 	#
 	# DBG
 	echo "Info - ${0} - Added: '${HTML_DIR}/${KEY}.html'."
