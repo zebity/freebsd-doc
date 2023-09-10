@@ -1,5 +1,15 @@
 #!/bin/sh
 #
+# what - drive loop to walk through man pages and invoke either
+#          - cat2html scripts
+#          - groff/man2html processors
+#          - copy compressed html to web docunt
+#          and optionally build alias links
+#
+# @author - John Hartley - Graphica Software/Dokmai Pty Ltd
+#
+# (C)opyright 2023 - All right reserved
+#
 
 DIR="/usr/local/www/bsddoc/man/IRIX-6.5.30/"
 CACHE="./irix-6.5.30"
