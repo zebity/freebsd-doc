@@ -1,8 +1,11 @@
 #!/bin/sh
 #
-# @what - create a status home adding page
+# @what - create static home index pages, for:
+#           - Index by Page/Secton &
+#           - Index by Section/Page
 #
 # @notes - section/page sort is not producing expected result ...
+#            so need to use alternate "for NEXT" loop code
 #
 # @author - John Hartley - Graphica Software/Dokmai Pty Ltd
 #
@@ -23,11 +26,13 @@ MANMASK=""
 SEC=
 PAGE=
 SORTBY="Page/Section"
-ITEM=4
+ITEM=
+MANITEM=4
+TABITEM=24
 # SEDFLIP="\2 \1"
 BYALPHA="-f" 
 # BYSECTION="-f" 
-BYSECTION="-k5,4"
+BYSECTION="-t / -k5,5 -k6,6f"
 SORT_FLAGS=${BYALPHA}
 GROUP=
 GAT=
@@ -89,85 +94,122 @@ else
 	fi
 fi
 
-echo "<!DOCTYPE html>"
-echo "<htm lang=\"en\">"
-echo "<head>"
-echo "<meta charset\"UTF-8\">"
-echo "<title>${OS} ${VERSION} Man Page - Index sorted by ${SORTBY}</title>"
-echo "</header>"
-echo "<body>"
-echo "<table>"
-echo "<tr><td><h1>Man Pages for: ${OS} ${VERSION} - Sorted by: ${SORTBY}</h1></td></tr>"
-echo "<tr><td><h2>Alternate Index - Sorted by: <a href=\"${HOME}${ALTINDEX}\">${ORSORTBY}</a></h2></td></tr>"
-echo "<tr><td>${OS} Web Render <a href=\"https://github.com/zebity/freebsd-doc/tree/main/IRIX\">code</a> by: Graphica Software/Dokmai Pty Ltd (c) 2023</td></tr>"
-echo "<tr><td>Copyright (c) of pages with vendors: SGI, HP, SUN (and as attributed in page)</td></tr>"
-echo "<tr><td>See: <a href=\"https://just.graphica.com.au/tips/\">Just Enough Architecture - Technical Tips</a> for vintage SGI/IRIX blog/tips.</td></tr>"
-echo "</table>"
-echo "<br>"
-echo "<hr //>"
-echo "<table>" 
-
-PAIR=0
-COL=0
-ROW="<tr>"
-
 # find ./irix-6.5.30/index/man  -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' > index-stripped.txt
 # cat index-stripped.txt  | sed  -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | sort -f
 #
 
 # for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
 
-for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+# find ./irix-6.5.30/index/man -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort -t / -k5,5 -k6,6f   | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' > sort.txt
+
+# for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+
+TABS=HEADER
+
+while [ "${TABS}" != "INDICES" ] 
 do
-	let LINE=LINE+1 > /dev/null
-	let PAIR=PAIR+1 > /dev/null
-	# FILE=`${BASENAME} ${PATH}`
-	# PATHDIR=${PATH%${FILE}}
-	# PAGE=${FILE%.*}
-	# SUFFIX=${FILE##*.}
 
-	if [ $PAIR -eq 1 ]; then
-		PAGE=${NEXT}
-	else
-		SEC=${NEXT}
-
-		if [ ${ALPHA} -eq 1 ]; then
-			UCPAGE=`echo ${PAGE} | tr '[:lower:]' '[:upper:]'`
-			GAT=`echo ${UCPAGE} | cut -c 1-1`
-			# GAT=${UCPAGE%%?*}
-			# DBG
-			# echo "DBG>> ${0} - ALPHA=${ALPHA} PAGE='${PAGE}' UCPAGE='${UCPAGE}' GAT='${GAT}'."
-		elif [ ${SECTION} -eq 1 ]; then
-			GAT=${SEC}
-		fi
-
-		if [ "${GAT}" != "${GROUP}" ]; then
-			ROW=${ROW}"</tr>"
-			echo ${ROW}
-			echo "<tr><td>${GAT}</td></tr>"
-			ROW="<tr>"
-			GROUP=${GAT}
-			COL=0
-		elif [ ${COL} -eq ${ITEM} ]; then
-			ROW=${ROW}"</tr>"
-			echo ${ROW}
-			ROW="<tr>"
-			COL=0
-		fi
-
-		ROW=${ROW}"<td><a href=\"${HOME}${ROUTE1}${ROUTE2}${SEC}${ROUTE4}${ROUTE3}${PAGE}\">${PAGE}(${SEC})</a></td>"
+	if [ "${TABS}" = "HEADER" ]; then 
 		PAIR=0
-		let COL=COL+1 > /dev/null
-		
+		COL=0
+		echo "<!DOCTYPE html>"
+		echo "<htm lang=\"en\">"
+		echo "<head>"
+		echo "<meta charset\"UTF-8\">"
+		echo "<title>${OS} ${VERSION} Man Page - Index sorted by ${SORTBY}</title>"
+		echo "</header>"
+		echo "<body>"
+		echo "<table>"
+		echo "<tr><td><h1>Man Pages for: ${OS} ${VERSION} - Sorted by: ${SORTBY}</h1></td></tr>"
+		echo "<tr><td><h2>Alternate Index - Sorted by: <a href=\"${HOME}${ALTINDEX}\">${ORSORTBY}</a></h2></td></tr>"
+		echo "<tr><td>${OS} Web Render <a href=\"https://github.com/zebity/freebsd-doc/tree/main/IRIX\">code</a> by: Graphica Software/Dokmai Pty Ltd (c) 2023</td></tr>"
+		echo "<tr><td>Copyright (c) of pages with vendors: SGI, HP, SUN (and as attributed in page)</td></tr>"
+		echo "<tr><td>See: <a href=\"https://just.graphica.com.au/tips/\">Just Enough Architecture - Technical Tips</a> for vintage SGI/IRIX blog/tips.</td></tr>"
+		echo "</table>"
+		echo "<br>"
+		echo "<hr //>"
+		echo "<table>" 
+		TABS="TABS"
+		ITEM=${TABITEM}
+		ROW="<tr>"
+	elif [ "${TABS}" = "TABS" ]; then
+		PAIR=0
+		COL=0
+		ROW=${ROW}"</tr>"
+		echo "${ROW}"
+		echo "</table>"
+		echo "<br>"
+		echo "<hr //>"
+		TABS="INDICES"
+		ITEM=${MANITEM}
+		echo "<table>"
+		ROW="<tr>"
 	fi
-	# DBG
-	# echo "DBG>> ${0} - LINE=${LINE} PAIR=${PAIR} GAT='${GAT}' GROUP='${GROUP}' PAGE='${PAGE}' SEC='${SEC}' ROW='${ROW}'."
-	# if [ ${LINE} -eq 32 ]; then
- 	#	exit 0
-	# fi
+
+	# INDEX - for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+	# INDEX-ALT for NEXT in `find ${CACHE} -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort ${SORT_FLAGS} | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
+
+	for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+do
+		let LINE=LINE+1 > /dev/null
+		let PAIR=PAIR+1 > /dev/null
+		# FILE=`${BASENAME} ${PATH}`
+		# PATHDIR=${PATH%${FILE}}
+		# PAGE=${FILE%.*}
+		# SUFFIX=${FILE##*.}
+
+		if [ $PAIR -eq 1 ]; then
+			PAGE=${NEXT}
+		else
+			SEC=${NEXT}
+
+			if [ ${ALPHA} -eq 1 ]; then
+				UCPAGE=`echo ${PAGE} | tr '[:lower:]' '[:upper:]'`
+				GAT=`echo ${UCPAGE} | cut -c 1-1`
+				# GAT=${UCPAGE%%?*}
+				# DBG
+				# echo "DBG>> ${0} - ALPHA=${ALPHA} PAGE='${PAGE}' UCPAGE='${UCPAGE}' GAT='${GAT}'."
+			elif [ ${SECTION} -eq 1 ]; then
+				GAT=${SEC}
+			fi
+
+			if [ "${GAT}" != "${GROUP}" ]; then
+				if [ "${TABS}" = "TABS" ]; then
+					ROW=${ROW}"<td><a href=\"#${GAT}\">${GAT}</a></td>"
+					let COL=COL+1 > /dev/null
+				elif [ "${TABS}" = "INDICES" ]; then
+					ROW=${ROW}"</tr>"
+					echo ${ROW}
+					echo "<tr><td><h3 id=\"${GAT}\">${GAT}</h3></td></tr>"
+					ROW="<tr>"
+					COL=0
+				fi
+				GROUP=${GAT}
+			fi
+			if [ ${COL} -eq ${ITEM} ]; then
+				ROW=${ROW}"</tr>"
+				echo ${ROW}
+				ROW="<tr>"
+				COL=0
+			fi
+
+
+			if [ "${TABS}" = "INDICES" ]; then
+				ROW=${ROW}"<td><a href=\"${HOME}${ROUTE1}${ROUTE2}${SEC}${ROUTE4}${ROUTE3}${PAGE}\">${PAGE}(${SEC})</a></td>"
+				let COL=COL+1 > /dev/null
+			fi
+			PAIR=0
+		fi
+		# DBG
+		# echo "DBG>> ${0} - LINE=${LINE} PAIR=${PAIR} GAT='${GAT}' GROUP='${GROUP}' PAGE='${PAGE}' SEC='${SEC}' ROW='${ROW}'."
+		# if [ ${LINE} -eq 32 ]; then
+ 		#	exit 0
+		# fi
+	done
 done
+
+ROW=${ROW}"</tr>"
 echo "${ROW}"
-echo "</tr>"
 echo "</table>"
 echo "</body>"
 echo "</html>"
