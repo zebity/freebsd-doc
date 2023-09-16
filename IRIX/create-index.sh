@@ -112,20 +112,25 @@ do
 	if [ "${TABS}" = "HEADER" ]; then 
 		PAIR=0
 		COL=0
-		echo "<!DOCTYPE html>"
-		echo "<htm lang=\"en\">"
+		echo "<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML//EN">"
 		echo "<head>"
 		echo "<meta charset\"UTF-8\">"
 		echo "<title>${OS} ${VERSION} Man Page - Index sorted by ${SORTBY}</title>"
-		echo "</header>"
+		echo "</head>"
 		echo "<body>"
 		echo "<table>"
-		echo "<tr><td><h1>Man Pages for: ${OS} ${VERSION} - Sorted by: ${SORTBY}</h1></td></tr>"
-		echo "<tr><td><h2>Alternate Index - Sorted by: <a href=\"${HOME}${ALTINDEX}\">${ORSORTBY}</a></h2></td></tr>"
-		echo "<tr><td>${OS} Web Render <a href=\"https://github.com/zebity/freebsd-doc/tree/main/IRIX\">code</a> by: Graphica Software/Dokmai Pty Ltd (c) 2023</td></tr>"
+		echo "<tr><td><h1>Man Pages for: ${OS} ${VERSION} - Index sorted by: ${SORTBY}</h1></td></tr>"
+		echo "</table>"
+		echo "<!-- BREAK INDEX: INSERT FORM -->"
+		echo "<!-- BREAK INDEX: INDEX ONLY -->"
+		echo "<hr //>"
+		echo "<table>"
+		echo "<tr><td><strong>Alternate Index - sorted by: <a href=\"${HOME}${ALTINDEX}\">${ORSORTBY}<strong></a></td></tr>"
+		echo "<tr><td>Web Render <a href=\"https://github.com/zebity/freebsd-doc/tree/main/IRIX\">code</a> by: Graphica Software/Dokmai Pty Ltd (C) 2023</td></tr>"
 		echo "<tr><td>Copyright (c) of pages with vendors: SGI, HP, SUN (and as attributed in page)</td></tr>"
 		echo "<tr><td>See: <a href=\"https://just.graphica.com.au/tips/\">Just Enough Architecture - Technical Tips</a> for vintage SGI/IRIX blog/tips.</td></tr>"
 		echo "</table>"
+		echo "<!-- BREAK INDEX: INDEX ONLY -->"
 		echo "<br>"
 		echo "<hr //>"
 		echo "<table>" 
@@ -148,6 +153,8 @@ do
 
 	# INDEX - for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
 	# INDEX-ALT for NEXT in `find ${CACHE} -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort ${SORT_FLAGS} | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
+
+#	for NEXT in `find ${CACHE} -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort ${SORT_FLAGS} | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
 
 	for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
 do
