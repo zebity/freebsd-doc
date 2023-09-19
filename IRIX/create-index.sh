@@ -3,6 +3,7 @@
 # @what - create static home index pages, for:
 #           - Index by Page/Secton &
 #           - Index by Section/Page
+#         example: ./create-index.sh -c freebsd-2.0.5/index/man -o FreeBSD -v 2.0.5 -i a > index.html
 #
 # @notes - section/page sort is not producing expected result ...
 #            so need to use alternate "for NEXT" loop code
@@ -37,6 +38,8 @@ SORT_FLAGS=${BYALPHA}
 GROUP=
 GAT=
 HOME="/irix-6.5.30/";
+HOME_IRIX="/irix-6.5.30/";
+HOME_BSD="/freebsd-2.0.5/";
 # ROUTE = ( "man?", "section=", "page=", "&" );
 ROUTE1="man/"
 ROUTE2=""
@@ -71,6 +74,19 @@ if [ "${INDEX}" = "s" ]; then
 	SORTBY="Section/Page"
 	ALTINDEX="index.html"
 	# SEDFLIP="\1 \2"
+fi
+
+if [ "${OS}" = "FreeBSD" ]; then
+        LCOS=`echo ${OS} | tr '[:upper:]' '[:lower:]'`
+	HOME="/${LCOS}-${VERSION}/"
+	SORT_FLAGS="-f"
+fi
+
+if [ "${OS}" = "UNIX" ]; then
+        LCOS=`echo ${OS} | tr '[:upper:]' '[:lower:]'`
+        LCVER=`echo ${VERSION} | tr '[:upper:]' '[:lower:]'`
+	HOME="/${LCOS}-${LCVER}/"
+	SORT_FLAGS="-f"
 fi
  
 # DBG
@@ -154,9 +170,12 @@ do
 	# INDEX - for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
 	# INDEX-ALT for NEXT in `find ${CACHE} -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort ${SORT_FLAGS} | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
 
+#	 for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+
 #	for NEXT in `find ${CACHE} -print | sed -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' | sort ${SORT_FLAGS} | sed -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g'`
 
-	for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
+
+	 for NEXT in `find ${CACHE} -print | ${SED} -e '/^.*\/index\/man$/d' -e '/^.*\/index\/man\/[1-9a-zA-Z][a-zA-Z1-9]*$/d' -e '/^.*\/index\/man\/[^/]*\/.*$/s/^.*\/index\/man\/\([^/]*\)\/\(.*\)/\2 \1/g' | ${SORT} ${SORT_FLAGS}`
 do
 		let LINE=LINE+1 > /dev/null
 		let PAIR=PAIR+1 > /dev/null
@@ -218,5 +237,7 @@ done
 ROW=${ROW}"</tr>"
 echo "${ROW}"
 echo "</table>"
+echo "<br>"
+echo "<hr //>"
 echo "</body>"
 echo "</html>"

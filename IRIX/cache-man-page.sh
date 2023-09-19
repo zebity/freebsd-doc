@@ -18,6 +18,8 @@
 #          BSD (early) has man.sec.gz & man.sec
 #            nroff - gzip compressed source files 
 #            nroff - uncompressed source files
+#          UNIX (7th Ed)
+#            nroff - uncompressed files
 #
 #          to build full cache of cat.Zz renders, you can use find:
 #            find <DIR-WITH-Zz> -type f -name '*.[zZ]' -exec -z {} -d <CACHE> \;
@@ -34,8 +36,8 @@
 # (C)opyright 2023 - All rights reserved
 #
 
-USAGE="Usage - ${0} -d cache-dir -m path-to.(zZ|gz|sec) -o os = (i[rix]|b[sd]) -u URL_BASE [-l (off|only|on) - links]"
-VALOPTS="d:l:m::o:u:"
+USAGE="Usage - ${0} -d cache-dir -m path-to.(zZ|gz|sec) -o os = (f[reebsd]|i[rix]|b[sd]|u[nix]) -V VERSION -u URL_BASE [-l (off|only|on) - links]"
+VALOPTS="d:l:m::o:u:v:"
 
 EXPARG=2
 DIR=
@@ -51,6 +53,8 @@ OSFLAG=
 URL_BASE=
 IRIX_URL="/irix-6.5.30/man/\${section}\${subsection}/\${title}"
 BSD_URL="/freebsd-2.0.5/man/\${section}\${subsection}/\${title}"
+FREEBSD_URL="/freebsd-13.2/man/\${section}\${subsection}/\${title}"
+UNIX_URL="/unix-7th-edition/man/\${section}\${subsection}/\${title}"
 URL_TEMPLATE="/man/\${section}\${subsection}/\${title}"
 ENV_PATH="/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin"
 HTML=html
@@ -107,6 +111,7 @@ do
 	m)	PATH=${OPTARG}; shift ;;
 	o)	OS=${OPTARG}; shift ;;
 	u)	URL_BASE=${OPTARG}; shift ;;
+	v)	VERSION=${OPTARG}; shift ;;
 	:)	echo "${USAGE}" 1>&2
 		exit 2;;
 	\?)	echo "${USAGE}" 1>&2
@@ -147,20 +152,26 @@ else
 	exit 1
 fi
 
-if [ "${OS}" = "b" ]; then
-	if [ "${SUFFIX}" = "gz" ]; then
-		COMPRESSED_NROFF=1
-		PAGE=${PAGE%.*}
-		MASK=${FILE%.*}
-		SEC=${MASK##*.}
-	fi
-fi
+case "${OS}" in
+	b)	;&
+	f)	if [ "${SUFFIX}" = "gz" ]; then
+			COMPRESSED_NROFF=1
+			PAGE=${PAGE%.*}
+			MASK=${FILE%.*}
+			SEC=${MASK##*.}
+		fi
+		;;
+esac
 
 URL="${IRIX_URL}"
 if [ "${URL_BASE}" != "" ]; then
 	URL="${URL_BASE}${URL_TEMPLATE}"
 elif [ "${OS}" = "b" ]; then
 	URL="${BSD_URL}"
+elif [ "${OS}" = "f" ]; then
+	URL="${FREEBSD_URL}"
+elif [ "${OS}" = "u" ]; then
+	URL="${UNIX_URL}"
 fi
 
 # DBG

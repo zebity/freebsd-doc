@@ -22,7 +22,7 @@ Z_on=0
 man_on=0
 ADDLINKS=
 
-USAGE="Usage ${0} -d MANDIR -c CACHE [-z == process .z] [-Z == process .Z] [-g == process .gz] [-m == process man roff] -o == (i[rix]|b[sd]) [-l == (off|only|on)]"
+USAGE="Usage ${0} -d MANDIR -c CACHE [-z == process .z] [-Z == process .Z] [-g == process .gz] [-m == process man roff] -o == (f[reebsd]|i[rix]|b[sd]|u[nix]) [-l == (off|only|on)]"
 VALOPTS="c:d:gl:mo:zZ"
 
 while getopts ${VALOPTS} a
@@ -57,7 +57,7 @@ ENV=/usr/bin/env
 # DBG
 echo "Info - ${0} OS='${OS}' gz=${gz_on} z=${z_on} Z=${Z_on} man=${man_on}."
 
-let total = gz_on + z_on + Z_on + man_on;
+let total = gz_on + z_on + Z_on + man_on; > /dev/null
 
 if [ ${total} -eq 0 ]; then
 	echo ${USAGE}
