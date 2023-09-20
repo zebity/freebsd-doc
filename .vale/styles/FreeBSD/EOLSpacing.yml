@@ -1,7 +1,0 @@
----
-extends: existence
-message: "End of lines should not have spaces"
-level: warning
-scope: raw
-raw:
-  - ' +\n'
